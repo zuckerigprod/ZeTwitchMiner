@@ -1,0 +1,94 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ZeTwitchMiner.ViewModels"
+        xmlns:v="using:ZeTwitchMiner.Views"
+        xmlns:l="using:ZeTwitchMiner.Core"
+        x:Class="ZeTwitchMiner.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="ZeTwitchMiner"
+        Icon="/Assets/app.ico"
+        Width="1080" Height="700" MinWidth="880" MinHeight="580"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="44"
+        TransparencyLevelHint="Mica, AcrylicBlur, None"
+        Background="Transparent">
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:DashboardViewModel"><v:DashboardView /></DataTemplate>
+    <DataTemplate DataType="vm:InventoryViewModel"><v:InventoryView /></DataTemplate>
+    <DataTemplate DataType="vm:ChannelsViewModel"><v:ChannelsView /></DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel"><v:SettingsView /></DataTemplate>
+    <DataTemplate DataType="vm:LogViewModel"><v:LogView /></DataTemplate>
+  </Window.DataTemplates>
+
+  <Window.Styles>
+    <Style Selector="Ellipse.activity">
+      <Setter Property="Fill" Value="{DynamicResource Muted}" />
+    </Style>
+    <Style Selector="Ellipse.activity.watching">
+      <Setter Property="Fill" Value="{DynamicResource Mineral}" />
+    </Style>
+    <Style Selector="Ellipse.activity.busy">
+      <Setter Property="Fill" Value="{DynamicResource Ore}" />
+    </Style>
+    <Style Selector="Ellipse.activity.error">
+      <Setter Property="Fill" Value="{DynamicResource Danger}" />
+    </Style>
+  </Window.Styles>
+
+  <Panel>
+    <!-- Подложка, если Mica недоступна -->
+    <Border Name="Solid" Background="{DynamicResource Bg}" IsHitTestVisible="False" IsVisible="False" />
+    <Border Background="{DynamicResource Sidebar}" IsHitTestVisible="False" />
+
+    <Grid ColumnDefinitions="76,*">
+      <!-- Боковая панель -->
+      <DockPanel Grid.Column="0" Margin="0,16,0,18">
+        <Image DockPanel.Dock="Top" Source="/Assets/logo.png" Width="38" Height="38" Margin="0,0,0,26"
+               RenderOptions.BitmapInterpolationMode="HighQuality" />
+
+        <Panel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Width="46" Height="46"
+               ToolTip.Tip="{Binding StatusText}" ToolTip.Placement="Right">
+          <Ellipse Width="10" Height="10" Classes="activity"
+                   Classes.watching="{Binding Dashboard.HasDrop}"
+                   Classes.busy="{Binding !Miner.LoggedIn}"
+                   Classes.error="{Binding Miner.LastError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </Panel>
+
+        <ListBox Classes="nav" ItemsSource="{Binding Nav}" SelectedItem="{Binding SelectedNav}"
+                 HorizontalAlignment="Center" IsEnabled="{Binding Miner.LoggedIn}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:NavItem">
+              <Panel Background="Transparent" Width="46" Height="46"
+                     ToolTip.Tip="{Binding Title}" ToolTip.Placement="Right" ToolTip.ShowDelay="300">
+                <LucideIcon Kind="{Binding Icon}" Size="21" StrokeWidth="1.8"
+                            HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Panel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+
+      <!-- Шапка окна: заголовок страницы и статус; за неё можно тянуть окно -->
+      <Border Grid.Column="1" Name="TitleBar" Height="44" VerticalAlignment="Top" Background="Transparent">
+        <Grid ColumnDefinitions="*,Auto" Margin="22,0,150,0">
+          <TextBlock Classes="h3" VerticalAlignment="Center" IsHitTestVisible="False"
+                     Text="{Binding SelectedNav.Title}" IsVisible="{Binding Miner.LoggedIn}" />
+          <TextBlock Grid.Column="1" Classes="muted small" VerticalAlignment="Center" IsHitTestVisible="False"
+                     Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" MaxWidth="420" />
+        </Grid>
+      </Border>
+
+      <!-- Контент -->
+      <Border Grid.Column="1" Margin="0,44,0,0" Background="{DynamicResource Bg}"
+              CornerRadius="14,0,0,0" BorderBrush="{DynamicResource Line}" BorderThickness="1,1,0,0" ClipToBounds="True">
+        <Panel>
+          <TransitioningContentControl Classes="page" Content="{Binding SelectedNav.Page}"
+                                       IsVisible="{Binding Miner.LoggedIn}" />
+          <v:LoginView IsVisible="{Binding NeedsLogin}" />
+        </Panel>
+      </Border>
+    </Grid>
+  </Panel>
+</Window>

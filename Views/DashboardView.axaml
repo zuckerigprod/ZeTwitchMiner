@@ -1,0 +1,158 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:t="using:ZeTwitchMiner.Twitch"
+             xmlns:c="using:ZeTwitchMiner.Controls"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.drop">
+      <Setter Property="Background" Value="{DynamicResource Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14" />
+      <Setter Property="Width" Value="196" />
+      <Setter Property="Margin" Value="0,0,12,12" />
+    </Style>
+    <Style Selector="Border.drop.current">
+      <Setter Property="BorderBrush" Value="{DynamicResource Ore}" />
+    </Style>
+    <Style Selector="Border.drop.claimed">
+      <Setter Property="Opacity" Value="0.62" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer>
+    <StackPanel Margin="28,24,28,28" Spacing="18" MaxWidth="1120">
+
+      <Border Classes="card" Padding="16,12" Background="{DynamicResource DangerSoft}" BorderBrush="{DynamicResource Danger}"
+              IsVisible="{Binding Miner.LastError, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Miner.LastError}" />
+      </Border>
+
+      <!-- Главное: что добывается сейчас -->
+      <Border Classes="card" Padding="30,28" IsVisible="{Binding HasDrop}">
+        <Grid ColumnDefinitions="Auto,*">
+          <Panel Width="236" Height="236" VerticalAlignment="Top">
+            <c:OreRing Value="{Binding Progress}" IsActive="{Binding Main.RingActive}" Thickness="17"
+                       Fill="{DynamicResource Ore}" Track="{DynamicResource Track}" />
+            <Border Width="148" Height="148" CornerRadius="74" ClipToBounds="True" Background="{DynamicResource Raised}">
+              <Panel>
+                <LucideIcon Kind="Gift" Size="40" Foreground="{DynamicResource Muted}" />
+                <Image Source="{Binding Drop.MainBenefit.Image}" Stretch="UniformToFill" />
+              </Panel>
+            </Border>
+          </Panel>
+
+          <StackPanel Grid.Column="1" Margin="34,6,0,0" Spacing="6" VerticalAlignment="Center">
+            <TextBlock Classes="eyebrow" Text="{l:Tr Dash.Now}" />
+            <TextBlock Classes="h1" Text="{Binding Title}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+            <TextBlock Classes="muted" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+
+            <StackPanel Orientation="Horizontal" Spacing="40" Margin="0,18,0,0">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="num ore" FontSize="36" FontWeight="SemiBold" Text="{Binding PercentText}" />
+                <TextBlock Classes="muted small num" Text="{Binding MinutesText}" />
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Classes="num" FontSize="36" FontWeight="SemiBold" Text="{Binding RemainingText}" />
+                <TextBlock Classes="muted small" Text="{l:Tr Dash.UntilDrop}" />
+              </StackPanel>
+            </StackPanel>
+
+            <StackPanel Spacing="7" Margin="0,20,0,0" MaxWidth="460" HorizontalAlignment="Left" Width="460">
+              <TextBlock Classes="muted small" Text="{l:Tr Dash.NextMinute}" />
+              <ProgressBar Classes="mineral" Maximum="1" Value="{Binding Miner.MinuteProgress}" Height="4" MinHeight="4" />
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Канал и кампания -->
+      <Grid ColumnDefinitions="*,18,*" IsVisible="{Binding HasDrop}">
+        <Border Classes="card">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="ghost" VerticalAlignment="Center"
+                    Command="{Binding OpenChannelCommand}" ToolTip.Tip="{l:Tr Dash.OpenChannel}">
+              <LucideIcon Kind="ExternalLink" Size="18" />
+            </Button>
+            <StackPanel Spacing="4">
+              <TextBlock Classes="eyebrow" Text="{l:Tr Dash.Channel}" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Ellipse Width="8" Height="8" Fill="{DynamicResource Mineral}" VerticalAlignment="Center" />
+                <TextBlock Classes="h2" Text="{Binding Miner.Watching.Name}" />
+              </StackPanel>
+              <TextBlock Classes="muted small" TextTrimming="CharacterEllipsis">
+                <Run Text="{Binding Miner.Watching.GameName}" />
+                <Run Text="  ·  " />
+                <Run Text="{Binding Miner.Watching.ViewersText}" />
+                <Run Text="{l:Tr Dash.Viewers}" />
+              </TextBlock>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <Border Grid.Column="2" Classes="card">
+          <Grid ColumnDefinitions="Auto,*">
+            <Border Classes="thumb" Width="48" Height="64" VerticalAlignment="Top">
+              <Image Source="{Binding Campaign.Image}" Stretch="UniformToFill" />
+            </Border>
+            <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="4">
+              <TextBlock Classes="eyebrow" Text="{l:Tr Dash.Campaign}" />
+              <TextBlock Classes="h3" Text="{Binding Campaign.Name}" TextTrimming="CharacterEllipsis" />
+              <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                <ProgressBar Maximum="1" Value="{Binding Campaign.Progress}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                <TextBlock Grid.Column="1" Classes="muted small num" Text="{Binding CampaignCountText}" />
+              </Grid>
+              <TextBlock Classes="muted small" Text="{Binding CampaignRemainingText}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- Пласты: все дропы кампании по порядку -->
+      <StackPanel Spacing="12" IsVisible="{Binding HasDrop}">
+        <TextBlock Classes="eyebrow" Text="{l:Tr Dash.CampaignDrops}" />
+        <ItemsControl ItemsSource="{Binding Campaign.Drops}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="t:TimedDrop">
+              <Border Classes="drop" Classes.claimed="{Binding IsClaimed}">
+                <StackPanel Spacing="9">
+                  <Border Classes="thumb" Width="56" Height="56" HorizontalAlignment="Left">
+                    <Image Source="{Binding MainBenefit.Image}" Stretch="UniformToFill" />
+                  </Border>
+                  <TextBlock Text="{Binding RewardsText}" FontWeight="Medium" TextWrapping="Wrap" MaxLines="2"
+                             TextTrimming="CharacterEllipsis" Height="38" />
+                  <ProgressBar Maximum="1" Value="{Binding Progress}" Classes.mineral="{Binding IsClaimed}" />
+                  <TextBlock Classes="muted small" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- Пусто: ничего не добывается -->
+      <Border Classes="card" Padding="40" IsVisible="{Binding NoDrop}">
+        <StackPanel Spacing="12" HorizontalAlignment="Center" MaxWidth="440">
+          <Border Width="64" Height="64" CornerRadius="18" Background="{DynamicResource OreSoft}" HorizontalAlignment="Center">
+            <LucideIcon Kind="Pickaxe" Size="30" Foreground="{DynamicResource Ore}" />
+          </Border>
+          <TextBlock Classes="h2" Text="{Binding EmptyTitle}" TextAlignment="Center" TextWrapping="Wrap" />
+          <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap" Text="{l:Tr Dash.EmptyHint}"
+                     IsVisible="{Binding ShowGoSettings}" />
+          <Button Classes="primary" HorizontalAlignment="Center" Margin="0,8,0,0"
+                  Command="{Binding Main.GoSettingsCommand}" IsVisible="{Binding ShowGoSettings}"
+                  Content="{l:Tr Dash.SetupPriority}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

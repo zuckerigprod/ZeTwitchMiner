@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:t="using:ZeTwitchMiner.Twitch"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.ChannelsView"
+             x:DataType="vm:ChannelsViewModel">
+  <UserControl.Styles>
+    <Style Selector="Ellipse.state">
+      <Setter Property="Fill" Value="{DynamicResource Track}" />
+    </Style>
+    <Style Selector="Ellipse.state.online">
+      <Setter Property="Fill" Value="{DynamicResource Mineral}" />
+    </Style>
+    <Style Selector="Ellipse.state.pending">
+      <Setter Property="Fill" Value="{DynamicResource Ore}" />
+    </Style>
+    <Style Selector="Border.row.watching">
+      <Setter Property="BorderBrush" Value="{DynamicResource Ore}" />
+      <Setter Property="Background" Value="{DynamicResource OreSoft}" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel Margin="28,22,28,0">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="30,*,200,96,34,34,120" Margin="15,0,15,10">
+      <TextBlock Grid.Column="1" Classes="eyebrow" Text="{l:Tr Ch.Channel}" />
+      <TextBlock Grid.Column="2" Classes="eyebrow" Text="{l:Tr Ch.Game}" />
+      <TextBlock Grid.Column="3" Classes="eyebrow" Text="{l:Tr Ch.Viewers}" HorizontalAlignment="Right" />
+    </Grid>
+
+    <Panel>
+      <StackPanel IsVisible="{Binding !Items.Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="0,0,0,80">
+        <LucideIcon Kind="Tv" Size="34" Foreground="{DynamicResource Muted}" />
+        <TextBlock Classes="muted" Text="{l:Tr Ch.Empty}" TextAlignment="Center" />
+      </StackPanel>
+
+      <ListBox Classes="plain" ItemsSource="{Binding Items}" Padding="0,0,0,20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="t:Channel">
+            <Border Classes="row" Classes.watching="{Binding IsWatching}" Padding="15,10">
+              <Grid ColumnDefinitions="30,*,200,96,34,34,120">
+                <Ellipse Width="9" Height="9" Classes="state" HorizontalAlignment="Left"
+                         Classes.online="{Binding Online}" Classes.pending="{Binding PendingOnlineState}"
+                         ToolTip.Tip="{Binding StateText}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                  <Border Classes="chip ore" IsVisible="{Binding IsWatching}">
+                    <TextBlock Text="{l:Tr Ch.Watching}" />
+                  </Border>
+                </StackPanel>
+                <TextBlock Grid.Column="2" Classes="muted" Text="{Binding GameName}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Classes="num" Text="{Binding ViewersText}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <LucideIcon Grid.Column="4" Kind="Gift" Size="16" IsVisible="{Binding DropsEnabled}"
+                            Foreground="{DynamicResource Ore}" ToolTip.Tip="{l:Tr Ch.DropsEnabled}" HorizontalAlignment="Right" />
+                <LucideIcon Grid.Column="5" Kind="ShieldCheck" Size="16" IsVisible="{Binding AclBased}"
+                            Foreground="{DynamicResource Mineral}" ToolTip.Tip="{l:Tr Ch.Acl}" HorizontalAlignment="Right" />
+                <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="2">
+                  <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Ch.Open}"
+                          Command="{Binding $parent[ListBox].((vm:ChannelsViewModel)DataContext).OpenCommand}" CommandParameter="{Binding}">
+                    <LucideIcon Kind="ExternalLink" Size="16" />
+                  </Button>
+                  <Button Classes="ghost" Padding="8,6" IsEnabled="{Binding Online}" IsVisible="{Binding !IsWatching}"
+                          Command="{Binding $parent[ListBox].((vm:ChannelsViewModel)DataContext).WatchCommand}" CommandParameter="{Binding}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <LucideIcon Kind="Play" Size="14" />
+                      <TextBlock Text="{l:Tr Ch.Watch}" FontSize="12.5" />
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Panel>
+  </DockPanel>
+</UserControl>

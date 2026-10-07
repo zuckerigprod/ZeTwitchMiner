@@ -1,0 +1,152 @@
+{
+  "revision": 1,
+  "loginClients": [
+    "tv"
+  ],
+  "clients": {
+    "mobileweb": {
+      "url": "https://m.twitch.tv",
+      "id": "r8s4dac0uhzifbpu9sjdiwzctle17ff",
+      "userAgents": [
+        "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; SM-A102U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; SM-N960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; LM-Q720) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 16; LM-X420) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.7204.158 Mobile Safari/537.36"
+      ]
+    },
+    "tv": {
+      "url": "https://android.tv.twitch.tv",
+      "id": "ue6666qo983tsx6so1t0vnawi233wa",
+      "userAgents": [
+        "Mozilla/5.0 (Linux; Android 7.1; Smart Box C1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36"
+      ]
+    },
+    "web": {
+      "url": "https://www.twitch.tv",
+      "id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
+      "userAgents": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0"
+      ]
+    },
+    "android": {
+      "url": "https://www.twitch.tv",
+      "id": "kd1unb4b3q4t58fwlpcbzcbnm76a8fp",
+      "userAgents": [
+        "Dalvik/2.1.0 (Linux; U; Android 16; SM-S911B Build/TP1A.220624.014) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; U; Android 16; SM-S938B Build/BP2A.250605.031) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; Android 16; SM-X716N Build/UP1A.231005.007) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; U; Android 15; SM-G990B Build/AP3A.240905.015.A2) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; U; Android 15; SM-G970F Build/AP3A.241105.008) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; U; Android 15; SM-A566E Build/AP3A.240905.015.A2) tv.twitch.android.app/25.3.0/2503006",
+        "Dalvik/2.1.0 (Linux; U; Android 14; SM-X306B Build/UP1A.231005.007) tv.twitch.android.app/25.3.0/2503006"
+      ]
+    }
+  },
+  "operations": {
+    "GetStreamInfo": {
+      "name": "VideoPlayerStreamInfoOverlayChannel",
+      "hash": "198492e0857f6aedead9665c81c5a06d67b25b58034649687124083ff288597d",
+      "variables": {
+        "channel": null
+      }
+    },
+    "ClaimDrop": {
+      "name": "DropsPage_ClaimDropRewards",
+      "hash": "a455deea71bdc9015b78eb49f4acfbce8baa7ccbedd28e549bb025bd0f751930",
+      "variables": {
+        "input": {
+          "dropInstanceID": null
+        }
+      }
+    },
+    "Inventory": {
+      "name": "Inventory",
+      "hash": "8337eb8541b314040b0edde0c09c5c7a2783ba1960aa9edfbf3bac16d0fec404",
+      "variables": {
+        "fetchRewardCampaigns": false
+      }
+    },
+    "CurrentDrop": {
+      "name": "DropCurrentSessionContext",
+      "hash": "4d06b702d25d652afb9ef835d2a550031f1cf762b193523a92166f40ea3d142b",
+      "variables": {
+        "channelID": null,
+        "channelLogin": ""
+      }
+    },
+    "Campaigns": {
+      "name": "ViewerDropsDashboard",
+      "hash": "c16bb890cc8ce7647a96ee69cd313d423a378a3dedadf630a1017cde18975feb",
+      "variables": {
+        "fetchRewardCampaigns": false
+      }
+    },
+    "CampaignDetails": {
+      "name": "DropCampaignDetails",
+      "hash": "039277bf98f3130929262cc7c6efd9c141ca3749cb6dca442fc8ead9a53f77c1",
+      "variables": {
+        "channelLogin": null,
+        "dropID": null
+      }
+    },
+    "AvailableDrops": {
+      "name": "DropsHighlightService_AvailableDrops",
+      "hash": "782dad0f032942260171d2d80a654f88bdd0c5a9dddc392e9bc92218a0f42d20",
+      "variables": {
+        "channelID": null
+      }
+    },
+    "GameDirectory": {
+      "name": "DirectoryPage_Game",
+      "hash": "86bcceb4e8b1a51256ff8eed8bd8aae4acacf80d737efe904f84f3aeadf8cafd",
+      "variables": {
+        "limit": 30,
+        "slug": null,
+        "imageWidth": 50,
+        "includeCostreaming": false,
+        "options": {
+          "broadcasterLanguages": [],
+          "freeformTags": null,
+          "includeRestricted": [
+            "SUB_ONLY_LIVE"
+          ],
+          "recommendationsContext": {
+            "platform": "web"
+          },
+          "sort": "RELEVANCE",
+          "systemFilters": [],
+          "tags": [],
+          "requestID": "JIRA-VXP-2397"
+        },
+        "sortTypeIsRecency": false
+      }
+    },
+    "NotificationsDelete": {
+      "name": "OnsiteNotifications_DeleteNotification",
+      "hash": "13d463c831f28ffe17dccf55b3148ed8b3edbbd0ebadd56352f1ff0160616816",
+      "variables": {
+        "input": {
+          "id": ""
+        }
+      }
+    },
+    "SlugRedirect": {
+      "name": "DirectoryGameRedirect",
+      "hash": "1f0300090caceec51f33c5e20647aceff9017f740f223c3c532ba6fa59f6b6cc",
+      "variables": {
+        "name": null
+      }
+    }
+  },
+  "queries": {
+    "CampaignCatalog": {
+      "query": "query CampaignCatalog($login: String!) { user(login: $login) { channel { dropCampaigns { id name status startAt endAt accountLinkURL self { isAccountConnected } game { id displayName name slug boxArtURL } allow { isEnabled channels { id name displayName } } timeBasedDrops { id name startAt endAt requiredMinutesWatched preconditionDrops { id } benefitEdges { benefit { id name imageAssetURL distributionType } } } } } } }",
+      "variables": {
+        "login": "twitch"
+      }
+    }
+  }
+}

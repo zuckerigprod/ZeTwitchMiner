@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ZeTwitchMiner.Views.LanguageWindow"
+        Title="ZeTwitchMiner"
+        Icon="/Assets/app.ico"
+        Width="420" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Bg}">
+  <StackPanel Margin="32,30,32,32" Spacing="20">
+    <Image Source="/Assets/logo.png" Width="64" Height="64" HorizontalAlignment="Left"
+           RenderOptions.BitmapInterpolationMode="HighQuality" />
+    <StackPanel Spacing="4">
+      <TextBlock Classes="h2" Text="Выберите язык" />
+      <TextBlock Classes="muted" Text="Choose your language" />
+    </StackPanel>
+    <StackPanel Spacing="10">
+      <Button Name="Ru" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Русский" />
+      <Button Name="En" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="16,9" Content="English" />
+    </StackPanel>
+    <TextBlock Classes="muted small" TextWrapping="Wrap"
+               Text="Язык можно сменить в настройках · You can change it later in settings" />
+  </StackPanel>
+</Window>

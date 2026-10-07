@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.LogView"
+             x:DataType="vm:LogViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.msg.warn">
+      <Setter Property="Foreground" Value="{DynamicResource Ore}" />
+    </Style>
+    <Style Selector="TextBlock.msg.error">
+      <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel Margin="28,22,28,24">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,14">
+      <Button Command="{Binding CopyCommand}" CommandParameter="{Binding $parent[TopLevel]}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <LucideIcon Kind="Copy" Size="15" />
+          <TextBlock Text="{l:Tr Log.Copy}" />
+        </StackPanel>
+      </Button>
+      <Button Command="{Binding OpenFileCommand}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <LucideIcon Kind="FolderOpen" Size="15" />
+          <TextBlock Text="{l:Tr Log.OpenFile}" />
+        </StackPanel>
+      </Button>
+      <Button Classes="ghost" Command="{Binding ClearCommand}" Content="{l:Tr Log.Clear}" />
+    </StackPanel>
+
+    <Border Classes="card" Padding="6">
+      <ListBox Name="List" Classes="plain" ItemsSource="{Binding Entries}" Background="Transparent">
+        <ListBox.Styles>
+          <Style Selector="ListBox.plain ListBoxItem">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="10,3" />
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="l:LogEntry">
+            <Grid ColumnDefinitions="72,*">
+              <TextBlock Classes="mono muted" Text="{Binding TimeText}" />
+              <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding Message}" TextWrapping="Wrap"
+                                   Foreground="{Binding Level, Converter={x:Static vm:Converters.LogBrush}}" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,78 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="BgColor">#15171D</Color>
+      <Color x:Key="SurfaceColor">#1B1E26</Color>
+      <Color x:Key="RaisedColor">#232733</Color>
+      <Color x:Key="LineColor">#2C3140</Color>
+      <Color x:Key="TextColor">#E8EAF0</Color>
+      <Color x:Key="MutedColor">#8B91A1</Color>
+      <Color x:Key="OreColor">#F2A93B</Color>
+      <Color x:Key="OreHoverColor">#F5BA62</Color>
+      <Color x:Key="OrePressColor">#D99227</Color>
+      <Color x:Key="OreSoftColor">#2EF2A93B</Color>
+      <Color x:Key="OnOreColor">#1A1305</Color>
+      <Color x:Key="MineralColor">#3FB8AF</Color>
+      <Color x:Key="MineralSoftColor">#263FB8AF</Color>
+      <Color x:Key="DangerColor">#E5604D</Color>
+      <Color x:Key="DangerSoftColor">#26E5604D</Color>
+      <Color x:Key="TrackColor">#2A2E3A</Color>
+      <Color x:Key="SidebarColor">#D0101217</Color>
+      <Color x:Key="ScrimColor">#B0000000</Color>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="BgColor">#EEF0F4</Color>
+      <Color x:Key="SurfaceColor">#FFFFFF</Color>
+      <Color x:Key="RaisedColor">#F3F4F8</Color>
+      <Color x:Key="LineColor">#DADDE5</Color>
+      <Color x:Key="TextColor">#171A21</Color>
+      <Color x:Key="MutedColor">#666C7C</Color>
+      <Color x:Key="OreColor">#C77E12</Color>
+      <Color x:Key="OreHoverColor">#D68E22</Color>
+      <Color x:Key="OrePressColor">#A96A0C</Color>
+      <Color x:Key="OreSoftColor">#24C77E12</Color>
+      <Color x:Key="OnOreColor">#FFFFFF</Color>
+      <Color x:Key="MineralColor">#1F8A80</Color>
+      <Color x:Key="MineralSoftColor">#1F1F8A80</Color>
+      <Color x:Key="DangerColor">#C8432F</Color>
+      <Color x:Key="DangerSoftColor">#1FC8432F</Color>
+      <Color x:Key="TrackColor">#E1E4EB</Color>
+      <Color x:Key="SidebarColor">#D8E4E6EC</Color>
+      <Color x:Key="ScrimColor">#80000000</Color>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <SolidColorBrush x:Key="Bg" Color="{DynamicResource BgColor}" />
+  <SolidColorBrush x:Key="Surface" Color="{DynamicResource SurfaceColor}" />
+  <SolidColorBrush x:Key="Raised" Color="{DynamicResource RaisedColor}" />
+  <SolidColorBrush x:Key="Line" Color="{DynamicResource LineColor}" />
+  <SolidColorBrush x:Key="Text" Color="{DynamicResource TextColor}" />
+  <SolidColorBrush x:Key="Muted" Color="{DynamicResource MutedColor}" />
+  <SolidColorBrush x:Key="Ore" Color="{DynamicResource OreColor}" />
+  <SolidColorBrush x:Key="OreHover" Color="{DynamicResource OreHoverColor}" />
+  <SolidColorBrush x:Key="OrePress" Color="{DynamicResource OrePressColor}" />
+  <SolidColorBrush x:Key="OreSoft" Color="{DynamicResource OreSoftColor}" />
+  <SolidColorBrush x:Key="OnOre" Color="{DynamicResource OnOreColor}" />
+  <SolidColorBrush x:Key="Mineral" Color="{DynamicResource MineralColor}" />
+  <SolidColorBrush x:Key="MineralSoft" Color="{DynamicResource MineralSoftColor}" />
+  <SolidColorBrush x:Key="Danger" Color="{DynamicResource DangerColor}" />
+  <SolidColorBrush x:Key="DangerSoft" Color="{DynamicResource DangerSoftColor}" />
+  <SolidColorBrush x:Key="Track" Color="{DynamicResource TrackColor}" />
+  <SolidColorBrush x:Key="Sidebar" Color="{DynamicResource SidebarColor}" />
+  <SolidColorBrush x:Key="Scrim" Color="{DynamicResource ScrimColor}" />
+
+  <!-- Акцент Fluent-контролов под янтарь -->
+  <Color x:Key="SystemAccentColor">#F2A93B</Color>
+  <Color x:Key="SystemAccentColorDark1">#D99227</Color>
+  <Color x:Key="SystemAccentColorDark2">#B87917</Color>
+  <Color x:Key="SystemAccentColorDark3">#8F5D0F</Color>
+  <Color x:Key="SystemAccentColorLight1">#F5BA62</Color>
+  <Color x:Key="SystemAccentColorLight2">#F8CC8A</Color>
+  <Color x:Key="SystemAccentColorLight3">#FBDDB1</Color>
+
+  <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, monospace</FontFamily>
+  <CornerRadius x:Key="CardRadius">14</CornerRadius>
+  <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+  <CornerRadius x:Key="OverlayCornerRadius">10</CornerRadius>
+</ResourceDictionary>

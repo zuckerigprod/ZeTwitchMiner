@@ -1,0 +1,231 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+  <UserControl.Styles>
+    <Style Selector="Grid.setting">
+      <Setter Property="Margin" Value="0,10" />
+    </Style>
+    <Style Selector="Border.divider">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource Line}" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="MinWidth" Value="200" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer>
+    <StackPanel Margin="28,22,28,32" Spacing="18" MaxWidth="860">
+
+      <!-- Перезагрузка после изменений -->
+      <Border Classes="card" Padding="16,12" Background="{DynamicResource OreSoft}" BorderBrush="{DynamicResource Ore}"
+              IsVisible="{Binding NeedsReload}">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="primary" Command="{Binding ApplyReloadCommand}" Content="{l:Tr Set.Apply}" />
+          <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{l:Tr Set.ReloadHint}" />
+        </DockPanel>
+      </Border>
+
+      <!-- Основное -->
+      <Border Classes="card">
+        <StackPanel>
+          <TextBlock Classes="eyebrow" Text="{l:Tr Set.General}" Margin="0,0,0,6" />
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{l:Tr Set.Language}" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedIndex="{Binding LanguageIndex}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{l:Tr Set.Theme}" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Themes}" SelectedIndex="{Binding ThemeIndex}" />
+          </Grid>
+          <Border Classes="divider" Margin="0,6" />
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{l:Tr Set.Autostart}" VerticalAlignment="Center" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{l:Tr Set.StartInTray}" VerticalAlignment="Center" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding StartInTray}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{l:Tr Set.CloseToTray}" />
+              <TextBlock Classes="muted small" Text="{l:Tr Set.CloseToTrayHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding MinimizeToTray}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{l:Tr Set.Notifications}" VerticalAlignment="Center" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding Notifications}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- Добыча -->
+      <Border Classes="card">
+        <StackPanel>
+          <TextBlock Classes="eyebrow" Text="{l:Tr Set.Mining}" Margin="0,0,0,6" />
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{l:Tr Set.PriorityMode}" />
+              <TextBlock Classes="muted small" Text="{l:Tr Set.PriorityModeHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding PriorityModes}" SelectedIndex="{Binding PriorityModeIndex}" />
+          </Grid>
+
+          <Border Classes="divider" Margin="0,8" />
+          <TextBlock Text="{l:Tr Set.Priority}" FontWeight="Medium" Margin="0,8,0,2" />
+          <TextBlock Classes="muted small" Text="{l:Tr Set.PriorityHint}" TextWrapping="Wrap" Margin="0,0,0,10" />
+          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+            <AutoCompleteBox Text="{Binding NewPriority}" ItemsSource="{Binding GameSuggestions}"
+                             Watermark="{l:Tr Set.GameName}" FilterMode="ContainsOrdinal" MinimumPrefixLength="1" />
+            <Button Grid.Column="1" Margin="8,0,0,0" Command="{Binding AddPriorityCommand}" ToolTip.Tip="{l:Tr Set.Add}">
+              <LucideIcon Kind="Plus" Size="16" />
+            </Button>
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Priority}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <Border Background="{DynamicResource Raised}" CornerRadius="10" Padding="12,4,4,4" Margin="0,0,0,6">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                      <Button Classes="ghost" Padding="6" Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).MoveUpCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="ChevronUp" Size="16" />
+                      </Button>
+                      <Button Classes="ghost" Padding="6" Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).MoveDownCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="ChevronDown" Size="16" />
+                      </Button>
+                      <Button Classes="ghost" Padding="6" Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).RemovePriorityCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="X" Size="16" />
+                      </Button>
+                    </StackPanel>
+                    <TextBlock Text="{Binding}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                  </DockPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Border Classes="divider" Margin="0,10" />
+          <TextBlock Text="{l:Tr Set.Excluded}" FontWeight="Medium" Margin="0,8,0,10" />
+          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+            <AutoCompleteBox Text="{Binding NewExcluded}" ItemsSource="{Binding GameSuggestions}"
+                             Watermark="{l:Tr Set.GameName}" FilterMode="ContainsOrdinal" MinimumPrefixLength="1" />
+            <Button Grid.Column="1" Margin="8,0,0,0" Command="{Binding AddExcludedCommand}" ToolTip.Tip="{l:Tr Set.Add}">
+              <LucideIcon Kind="Plus" Size="16" />
+            </Button>
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Excluded}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <Border Background="{DynamicResource Raised}" CornerRadius="99" Padding="12,2,2,2" Margin="0,0,6,6">
+                  <StackPanel Orientation="Horizontal" Spacing="2">
+                    <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12.5" />
+                    <Button Classes="ghost" Padding="5" CornerRadius="99"
+                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).RemoveExcludedCommand}" CommandParameter="{Binding}">
+                      <LucideIcon Kind="X" Size="13" />
+                    </Button>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Дополнительно -->
+      <Border Classes="card">
+        <StackPanel>
+          <TextBlock Classes="eyebrow" Text="{l:Tr Set.Advanced}" Margin="0,0,0,6" />
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{l:Tr Set.Badges}" />
+              <TextBlock Classes="muted small" Text="{l:Tr Set.BadgesHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding EnableBadgesEmotes}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{l:Tr Set.DropsCheck}" />
+              <TextBlock Classes="muted small" Text="{l:Tr Set.DropsCheckHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AvailableDropsCheck}" />
+          </Grid>
+          <Grid Classes="setting" ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{l:Tr Set.Proxy}" />
+              <TextBlock Classes="muted small" Text="{l:Tr Set.ProxyHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <TextBox Grid.Column="1" Width="280" VerticalAlignment="Center" Text="{Binding Proxy, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                     Watermark="http://user:pass@host:port" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- Аккаунт -->
+      <Border Classes="card">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" VerticalAlignment="Center" Command="{Binding LogoutCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <LucideIcon Kind="LogOut" Size="16" />
+              <TextBlock Text="{l:Tr Set.Logout}" />
+            </StackPanel>
+          </Button>
+          <StackPanel Spacing="4">
+            <TextBlock Classes="eyebrow" Text="{l:Tr Set.Account}" />
+            <TextBlock>
+              <Run Text="{l:Tr Set.UserId}" />
+              <Run Text="{Binding Main.Miner.UserId}" FontWeight="Medium" />
+            </TextBlock>
+            <TextBlock Classes="muted small">
+              <Run Text="{l:Tr Set.Client}" />
+              <Run Text="{Binding Main.Miner.ClientName}" />
+            </TextBlock>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <!-- О программе -->
+      <Border Classes="card">
+        <Grid ColumnDefinitions="Auto,*">
+          <Image Source="/Assets/logo.png" Width="64" Height="64" VerticalAlignment="Top" RenderOptions.BitmapInterpolationMode="HighQuality" />
+          <StackPanel Grid.Column="1" Margin="18,0,0,0" Spacing="6">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Classes="h2" Text="ZeTwitchMiner" />
+              <Border Classes="chip"><TextBlock Text="{Binding Version}" /></Border>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Classes="muted" Text="{l:Tr Set.Author}" VerticalAlignment="Center" />
+              <Button Classes="ghost" Padding="4,2" Command="{Binding OpenUrlCommand}" CommandParameter="{x:Static vm:SettingsViewModel.AuthorUrl}">
+                <TextBlock Text="zuckerigprod" Foreground="{DynamicResource Ore}" FontWeight="Medium" />
+              </Button>
+            </StackPanel>
+            <WrapPanel Margin="0,4,0,0">
+              <Button Classes="ghost" Padding="0,2" Margin="0,0,16,0" Command="{Binding OpenUrlCommand}" CommandParameter="{x:Static vm:SettingsViewModel.RepoUrl}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <LucideIcon Kind="ExternalLink" Size="14" />
+                  <TextBlock Text="{l:Tr Set.Repo}" FontSize="12.5" />
+                </StackPanel>
+              </Button>
+              <Button Classes="ghost" Padding="0,2" Command="{Binding OpenDataDirCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <LucideIcon Kind="FolderOpen" Size="14" />
+                  <TextBlock Text="{l:Tr Set.DataFolder}" FontSize="12.5" />
+                </StackPanel>
+              </Button>
+            </WrapPanel>
+            <TextBlock Classes="muted small mono" Text="{Binding DataDirText}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

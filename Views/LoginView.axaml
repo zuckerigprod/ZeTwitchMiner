@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.LoginView"
+             x:DataType="vm:MainViewModel">
+  <ScrollViewer>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="420" Margin="24,40" Spacing="18">
+      <Image Source="/Assets/logo.png" Width="76" Height="76" HorizontalAlignment="Left"
+             RenderOptions.BitmapInterpolationMode="HighQuality" />
+      <StackPanel Spacing="6">
+        <TextBlock Classes="h1" Text="{l:Tr Login.Title}" />
+        <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:Tr Login.Hint}" />
+      </StackPanel>
+
+      <Border Classes="card" Padding="14,12" Background="{DynamicResource DangerSoft}" BorderBrush="{DynamicResource Danger}"
+              IsVisible="{Binding Miner.LastError, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <TextBlock Classes="danger small" TextWrapping="Wrap" Text="{Binding Miner.LastError}" />
+      </Border>
+
+      <!-- Код активации -->
+      <Border Classes="card" IsVisible="{Binding HasLoginCode}">
+        <StackPanel Spacing="14">
+          <TextBlock Classes="eyebrow" Text="{l:Tr Login.YourCode}" />
+          <SelectableTextBlock Text="{Binding Miner.LoginCode.UserCode}" FontFamily="{StaticResource MonoFont}"
+                               FontSize="38" FontWeight="SemiBold" LetterSpacing="6"
+                               Foreground="{DynamicResource Ore}" HorizontalAlignment="Center" />
+          <Button Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Command="{Binding OpenActivationCommand}" CommandParameter="{Binding $parent[TopLevel]}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <LucideIcon Kind="ExternalLink" Size="16" />
+              <TextBlock Text="{l:Tr Login.Open}" Foreground="{DynamicResource OnOre}" />
+            </StackPanel>
+          </Button>
+          <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{l:Tr Login.CopiedHint}" />
+        </StackPanel>
+      </Border>
+
+      <!-- Вход через браузер идёт -->
+      <Border Classes="card" IsVisible="{Binding Miner.BrowserLoginActive}">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h3" Text="{l:Tr Login.BrowserActiveTitle}" />
+          <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{l:Tr Login.BrowserActive}" />
+          <Button Classes="primary" HorizontalAlignment="Left" Margin="0,6,0,0"
+                  Command="{Binding FinishBrowserLoginCommand}" Content="{l:Tr Login.BrowserDone}" />
+        </StackPanel>
+      </Border>
+
+      <TextBlock Classes="muted small" Text="{Binding StatusText}" TextWrapping="Wrap"
+                 IsVisible="{Binding !HasLoginCode}" />
+
+      <!-- Вход через Edge пока скрыт: Twitch не даёт забирать дропы с веб-токеном без integrity -->
+      <StackPanel Spacing="8" IsVisible="False">
+        <Button Classes="ghost" Command="{Binding LoginWithBrowserCommand}" IsEnabled="{Binding !Miner.BrowserLoginActive}"
+                HorizontalAlignment="Left" Padding="10,8">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <LucideIcon Kind="Globe" Size="16" />
+            <TextBlock Text="{l:Tr Login.Browser}" FontWeight="Medium" />
+          </StackPanel>
+        </Button>
+        <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{l:Tr Login.BrowserHint}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

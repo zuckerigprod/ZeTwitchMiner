@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:t="using:ZeTwitchMiner.Twitch"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.InventoryView"
+             x:DataType="vm:InventoryViewModel">
+  <DockPanel Margin="28,22,28,0">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,16">
+      <ListBox Classes="segment" ItemsSource="{Binding Filters}" SelectedIndex="{Binding FilterIndex}" />
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+        <CheckBox Content="{l:Tr Inv.NotLinked}" IsChecked="{Binding ShowNotLinked}" />
+        <CheckBox Content="{l:Tr Inv.Finished}" IsChecked="{Binding ShowFinished}" />
+        <TextBox Width="200" Watermark="{l:Tr Inv.Search}" Text="{Binding Search}" />
+        <Button Classes="ghost" Command="{Binding ReloadCommand}" ToolTip.Tip="{l:Tr Common.Reload}">
+          <LucideIcon Kind="RefreshCw" Size="18" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Panel>
+      <StackPanel IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="0,0,0,80">
+        <LucideIcon Kind="Package" Size="34" Foreground="{DynamicResource Muted}" />
+        <TextBlock Classes="muted" Text="{l:Tr Inv.Empty}" TextAlignment="Center" />
+      </StackPanel>
+
+      <ListBox Classes="plain" ItemsSource="{Binding Items}" Padding="0,0,0,20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="t:Campaign">
+            <Border Classes="row" Padding="16">
+              <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                <Border Classes="thumb" Grid.RowSpan="2" Width="72" Height="96" VerticalAlignment="Top">
+                  <Image Source="{Binding Image}" Stretch="UniformToFill" />
+                </Border>
+
+                <StackPanel Grid.Column="1" Margin="18,0,0,0" Spacing="4">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" Margin="12,0,0,0">
+                      <Border Classes="chip mineral" IsVisible="{Binding Active}">
+                        <TextBlock Text="{l:Tr Inv.StatusActive}" />
+                      </Border>
+                      <Border Classes="chip ore" IsVisible="{Binding Upcoming}">
+                        <TextBlock Text="{l:Tr Inv.StatusUpcoming}" />
+                      </Border>
+                      <Border Classes="chip" IsVisible="{Binding Expired}">
+                        <TextBlock Text="{l:Tr Inv.StatusExpired}" />
+                      </Border>
+                      <Border Classes="chip" IsVisible="{Binding Linked}">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <LucideIcon Kind="Link" Size="12" Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{l:Tr Inv.Linked}" />
+                        </StackPanel>
+                      </Border>
+                      <Button Classes="ghost" Padding="0" IsVisible="{Binding !Linked}" Cursor="Hand"
+                              Command="{Binding $parent[ListBox].((vm:InventoryViewModel)DataContext).OpenLinkCommand}"
+                              CommandParameter="{Binding}" ToolTip.Tip="{l:Tr Inv.LinkHint}">
+                        <Border Classes="chip danger">
+                          <StackPanel Orientation="Horizontal" Spacing="4">
+                            <LucideIcon Kind="Unlink" Size="12" Foreground="{DynamicResource Danger}" />
+                            <TextBlock Text="{l:Tr Inv.NotLinkedChip}" />
+                          </StackPanel>
+                        </Border>
+                      </Button>
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Inv.AddPriority}"
+                              Command="{Binding $parent[ListBox].((vm:InventoryViewModel)DataContext).AddPriorityCommand}"
+                              CommandParameter="{Binding}">
+                        <LucideIcon Kind="Plus" Size="16" />
+                      </Button>
+                    </StackPanel>
+                    <TextBlock Classes="h3" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                  </DockPanel>
+                  <TextBlock Classes="muted small">
+                    <Run Text="{Binding Game.Name}" FontWeight="Medium" />
+                    <Run Text="  ·  " />
+                    <Run Text="{Binding EndsText}" />
+                  </TextBlock>
+                  <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0" MaxWidth="520" HorizontalAlignment="Left" Width="520">
+                    <ProgressBar Maximum="1" Value="{Binding Progress}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <TextBlock Grid.Column="1" Classes="muted small num" Text="{Binding ClaimedText}" />
+                  </Grid>
+                  <TextBlock Classes="muted small" TextTrimming="CharacterEllipsis">
+                    <Run Text="{l:Tr Inv.Channels}" />
+                    <Run Text="{Binding AllowedChannelsText}" />
+                  </TextBlock>
+                </StackPanel>
+
+                <ItemsControl Grid.Row="1" Grid.Column="1" Margin="18,12,0,0" ItemsSource="{Binding Drops}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="t:TimedDrop">
+                      <Border Background="{DynamicResource Raised}" CornerRadius="10" Padding="8" Margin="0,0,8,8" Width="210"
+                              Opacity="{Binding IsClaimed, Converter={x:Static vm:Converters.ClaimedOpacity}}">
+                        <Grid ColumnDefinitions="Auto,*">
+                          <Border Classes="thumb" Width="40" Height="40">
+                            <Image Source="{Binding MainBenefit.Image}" Stretch="UniformToFill" />
+                          </Border>
+                          <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="{Binding RewardsText}" FontSize="12.5" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="muted" FontSize="11.5" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Panel>
+  </DockPanel>
+</UserControl>
