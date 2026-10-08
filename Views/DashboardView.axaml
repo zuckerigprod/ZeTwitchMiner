@@ -19,6 +19,30 @@
     <Style Selector="Border.drop.current">
       <Setter Property="BorderBrush" Value="{DynamicResource Ore}" />
     </Style>
+    <Style Selector="Border.queue">
+      <Setter Property="Background" Value="{DynamicResource Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14,8,8,8" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="Border.queue.mining">
+      <Setter Property="BorderBrush" Value="{DynamicResource Mineral}" />
+    </Style>
+    <Style Selector="Border.queue.done">
+      <Setter Property="Opacity" Value="0.6" />
+    </Style>
+    <Style Selector="TextBlock.state">
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+    </Style>
+    <Style Selector="TextBlock.state.mining">
+      <Setter Property="Foreground" Value="{DynamicResource Mineral}" />
+      <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+    <Style Selector="TextBlock.state.problem">
+      <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+    </Style>
     <Style Selector="Border.drop.claimed">
       <Setter Property="Opacity" Value="0.62" />
     </Style>
@@ -69,6 +93,55 @@
           </StackPanel>
         </Grid>
       </Border>
+
+      <!-- Очередь игр: порядок важен, поэтому с номерами -->
+      <StackPanel Spacing="12" IsVisible="{Binding HasQueue}">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="ghost" Padding="8,4" Command="{Binding Main.GoCampaignsCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <LucideIcon Kind="Plus" Size="14" />
+              <TextBlock Text="{l:Tr Queue.Add}" FontSize="12.5" />
+            </StackPanel>
+          </Button>
+          <TextBlock Classes="eyebrow" Text="{l:Tr Queue.Title}" VerticalAlignment="Center" />
+        </DockPanel>
+        <ItemsControl ItemsSource="{Binding Queue}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:QueueItem">
+              <Border Classes="queue" Classes.mining="{Binding IsMining}" Classes.done="{Binding IsDone}">
+                <Grid ColumnDefinitions="28,Auto,*,Auto">
+                  <TextBlock Classes="muted num" Text="{Binding Number}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                  <Border Grid.Column="1" Classes="thumb" Width="30" Height="40">
+                    <Image Source="{Binding Cover.Image}" Stretch="UniformToFill" />
+                  </Border>
+                  <StackPanel Grid.Column="2" Margin="14,0,12,0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Classes="small state" Classes.mining="{Binding IsMining}" Classes.problem="{Binding IsProblem}"
+                                 Text="{Binding StatusText}" />
+                      <TextBlock Classes="muted small" Text="{Binding Detail}" />
+                    </StackPanel>
+                  </StackPanel>
+                  <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Classes="ghost" Padding="6" IsEnabled="{Binding CanMoveUp}" ToolTip.Tip="{l:Tr Queue.Up}"
+                            Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).QueueUpCommand}" CommandParameter="{Binding}">
+                      <LucideIcon Kind="ChevronUp" Size="16" />
+                    </Button>
+                    <Button Classes="ghost" Padding="6" IsEnabled="{Binding CanMoveDown}" ToolTip.Tip="{l:Tr Queue.Down}"
+                            Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).QueueDownCommand}" CommandParameter="{Binding}">
+                      <LucideIcon Kind="ChevronDown" Size="16" />
+                    </Button>
+                    <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Queue.Remove}"
+                            Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).QueueRemoveCommand}" CommandParameter="{Binding}">
+                      <LucideIcon Kind="X" Size="16" />
+                    </Button>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
 
       <!-- Канал и кампания -->
       <Grid ColumnDefinitions="*,18,*" IsVisible="{Binding HasDrop}">
@@ -149,7 +222,7 @@
           <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap" Text="{l:Tr Dash.EmptyHint}"
                      IsVisible="{Binding ShowGoSettings}" />
           <Button Classes="primary" HorizontalAlignment="Center" Margin="0,8,0,0"
-                  Command="{Binding Main.GoSettingsCommand}" IsVisible="{Binding ShowGoSettings}"
+                  Command="{Binding Main.GoCampaignsCommand}" IsVisible="{Binding ShowGoSettings}"
                   Content="{l:Tr Dash.SetupPriority}" />
         </StackPanel>
       </Border>

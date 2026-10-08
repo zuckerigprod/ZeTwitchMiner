@@ -16,7 +16,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private Settings S => _main.Settings;
     private bool _restartNeeded;
 
-    public ObservableCollection<string> Priority { get; }
+    public ObservableCollection<string> Priority => _main.Queue.Games;
     public ObservableCollection<string> Excluded { get; }
     public ObservableCollection<string> GameSuggestions { get; } = [];
 
@@ -29,8 +29,8 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         _main = main;
         _applyTheme = applyTheme;
-        Priority = new ObservableCollection<string>(S.PriorityGames);
         Excluded = new ObservableCollection<string>(S.ExcludedGames.Order());
+        main.Queue.Changed += SyncExcluded;
         main.Miner.Inventory.CollectionChanged += (_, _) => UpdateSuggestions();
         Loc.Instance.Changed += () =>
         {
@@ -161,63 +161,41 @@ public sealed partial class SettingsViewModel : ObservableObject
             GameSuggestions.Add(g);
     }
 
-    private void SyncLists()
+    private void SyncExcluded()
     {
-        S.PriorityGames = Priority.ToList();
-        S.ExcludedGames = Excluded.ToList();
-        Changed();
+        var actual = S.ExcludedGames.Order().ToList();
+        if (Excluded.SequenceEqual(actual)) return;
+        Excluded.Clear();
+        foreach (var g in actual) Excluded.Add(g);
     }
 
     [RelayCommand]
     private void AddPriority()
     {
-        var name = NewPriority.Trim();
-        if (name.Length == 0 || Priority.Contains(name)) return;
-        Priority.Add(name);
-        Excluded.Remove(name);
+        _main.Queue.Add(NewPriority);
         NewPriority = "";
-        SyncLists();
     }
 
     [RelayCommand]
     private void AddExcluded()
     {
         var name = NewExcluded.Trim();
-        if (name.Length == 0 || Excluded.Contains(name)) return;
-        Excluded.Add(name);
-        Priority.Remove(name);
+        if (name.Length == 0) return;
+        _main.Queue.Exclude(name);
         NewExcluded = "";
-        SyncLists();
     }
 
     [RelayCommand]
-    private void RemovePriority(string name)
-    {
-        Priority.Remove(name);
-        SyncLists();
-    }
+    private void RemovePriority(string name) => _main.Queue.Remove(name);
 
     [RelayCommand]
-    private void RemoveExcluded(string name)
-    {
-        Excluded.Remove(name);
-        SyncLists();
-    }
+    private void RemoveExcluded(string name) => _main.Queue.Unexclude(name);
 
     [RelayCommand]
-    private void MoveUp(string name) => Move(name, -1);
+    private void MoveUp(string name) => _main.Queue.Move(name, -1);
 
     [RelayCommand]
-    private void MoveDown(string name) => Move(name, 1);
-
-    private void Move(string name, int delta)
-    {
-        var i = Priority.IndexOf(name);
-        var j = i + delta;
-        if (i < 0 || j < 0 || j >= Priority.Count) return;
-        Priority.Move(i, j);
-        SyncLists();
-    }
+    private void MoveDown(string name) => _main.Queue.Move(name, 1);
 
     [RelayCommand]
     private void ApplyReload()

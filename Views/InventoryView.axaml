@@ -5,6 +5,15 @@
              xmlns:l="using:ZeTwitchMiner.Core"
              x:Class="ZeTwitchMiner.Views.InventoryView"
              x:DataType="vm:InventoryViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.campaign.mining">
+      <Setter Property="BorderBrush" Value="{DynamicResource Mineral}" />
+    </Style>
+    <Style Selector="Border.campaign.queued">
+      <Setter Property="BorderBrush" Value="{DynamicResource OreSoft}" />
+    </Style>
+  </UserControl.Styles>
+
   <DockPanel Margin="28,22,28,0">
     <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,16">
       <ListBox Classes="segment" ItemsSource="{Binding Filters}" SelectedIndex="{Binding FilterIndex}" />
@@ -25,9 +34,12 @@
       </StackPanel>
 
       <ListBox Classes="plain" ItemsSource="{Binding Items}" Padding="0,0,0,20">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="t:Campaign">
-            <Border Classes="row" Padding="16">
+        <ListBox.DataTemplates>
+          <DataTemplate DataType="vm:CampaignGroup">
+            <TextBlock Classes="eyebrow" Text="{Binding Title}" Margin="4,10,0,2" />
+          </DataTemplate>
+          <DataTemplate DataType="t:Campaign">
+            <Border Classes="row campaign" Classes.mining="{Binding IsMining}" Classes.queued="{Binding QueuedOnly}" Padding="16">
               <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
                 <Border Classes="thumb" Grid.RowSpan="2" Width="72" Height="96" VerticalAlignment="Top">
                   <Image Source="{Binding Image}" Stretch="UniformToFill" />
@@ -36,7 +48,16 @@
                 <StackPanel Grid.Column="1" Margin="18,0,0,0" Spacing="4">
                   <DockPanel>
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" Margin="12,0,0,0">
-                      <Border Classes="chip mineral" IsVisible="{Binding Active}">
+                      <Border Classes="chip mineral" IsVisible="{Binding IsMining}">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <LucideIcon Kind="Pickaxe" Size="12" Foreground="{DynamicResource Mineral}" />
+                          <TextBlock Text="{l:Tr Inv.Mining}" />
+                        </StackPanel>
+                      </Border>
+                      <Border Classes="chip ore" IsVisible="{Binding QueuedOnly}">
+                        <TextBlock Text="{l:Tr Inv.Queued}" />
+                      </Border>
+                      <Border Classes="chip" IsVisible="{Binding Active}">
                         <TextBlock Text="{l:Tr Inv.StatusActive}" />
                       </Border>
                       <Border Classes="chip ore" IsVisible="{Binding Upcoming}">
@@ -61,10 +82,15 @@
                           </StackPanel>
                         </Border>
                       </Button>
-                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Inv.AddPriority}"
-                              Command="{Binding $parent[ListBox].((vm:InventoryViewModel)DataContext).AddPriorityCommand}"
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Inv.AddQueue}" IsVisible="{Binding !InQueue}"
+                              Command="{Binding $parent[ListBox].((vm:InventoryViewModel)DataContext).ToggleQueueCommand}"
                               CommandParameter="{Binding}">
                         <LucideIcon Kind="Plus" Size="16" />
+                      </Button>
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Inv.RemoveQueue}" IsVisible="{Binding InQueue}"
+                              Command="{Binding $parent[ListBox].((vm:InventoryViewModel)DataContext).ToggleQueueCommand}"
+                              CommandParameter="{Binding}">
+                        <LucideIcon Kind="Minus" Size="16" />
                       </Button>
                     </StackPanel>
                     <TextBlock Classes="h3" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
@@ -110,7 +136,7 @@
               </Grid>
             </Border>
           </DataTemplate>
-        </ListBox.ItemTemplate>
+        </ListBox.DataTemplates>
       </ListBox>
     </Panel>
   </DockPanel>

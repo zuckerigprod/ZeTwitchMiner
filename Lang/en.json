@@ -4,9 +4,7 @@
   "Nav.Channels": "Channels",
   "Nav.Log": "Log",
   "Nav.Settings": "Settings",
-
   "Common.Reload": "Refresh",
-
   "Status.LoggingIn": "Signing in to Twitch…",
   "Status.Idle": "Idle",
   "Status.FetchingInventory": "Loading inventory…",
@@ -21,11 +19,9 @@
   "Status.GoesOffline": "{0} went offline, switching",
   "Status.ClaimedDrop": "Claimed drop: {0}",
   "Status.Error": "Error, retrying in {0}s",
-
   "Error.SiteDown": "Twitch is not responding, retrying in {0}s",
   "Error.ClaimIntegrity": "Twitch doesn't allow claiming drops after a browser sign-in. Sign out in settings and sign in with a code.",
   "Error.NoConnection": "Can't reach {1}, retrying in {0}s",
-
   "Login.Title": "Sign in to Twitch",
   "Login.Hint": "The app watches streams for you and claims drops. It needs access to your Twitch account to do that.",
   "Login.YourCode": "ACTIVATION CODE",
@@ -39,7 +35,6 @@
   "Login.NoBrowser": "Couldn't find Microsoft Edge or Google Chrome",
   "Login.Rejected": "Twitch rejected this sign-in method. Sign in again, preferably with Edge.",
   "Login.DeviceUnavailable": "Twitch didn't issue an activation code. Try signing in with Edge.",
-
   "Dash.Now": "MINING NOW",
   "Dash.UntilDrop": "until claimed",
   "Dash.Minutes": "{0} of {1} min",
@@ -52,22 +47,18 @@
   "Dash.CampaignDrops": "CAMPAIGN DROPS",
   "Dash.AlmostDone": "almost done",
   "Dash.EmptyIdle": "Nothing to mine right now",
-  "Dash.EmptyHint": "Add the games whose drops you want to the priority list. The app finds channels and starts watching on its own.",
+  "Dash.EmptyHint": "Add the games whose drops you want to the queue. The app finds channels and starts watching on its own.",
   "Dash.SetupPriority": "Choose games",
-
   "Time.HoursMinutes": "{0}h {1}m",
   "Time.Minutes": "{0}m",
-
   "Drop.Claimed": "Claimed",
   "Drop.ReadyToClaim": "Ready to claim",
   "Drop.Progress": "{0:P0} of {1} min",
   "Drop.Minutes": "{0} min",
-
   "Campaign.AllChannels": "any",
   "Campaign.AndMore": "and {0} more",
   "Campaign.Ends": "until {0}",
   "Campaign.Starts": "starts {0}",
-
   "Inv.Active": "Active",
   "Inv.Upcoming": "Upcoming",
   "Inv.All": "All",
@@ -80,10 +71,8 @@
   "Inv.Linked": "Linked",
   "Inv.NotLinkedChip": "Not linked",
   "Inv.LinkHint": "Open the account linking page",
-  "Inv.AddPriority": "Add game to priority",
   "Inv.Channels": "Channels:",
   "Inv.Empty": "No campaigns match these filters",
-
   "Ch.Channel": "CHANNEL",
   "Ch.Game": "GAME",
   "Ch.Viewers": "VIEWERS",
@@ -93,15 +82,12 @@
   "Ch.DropsEnabled": "Drops enabled",
   "Ch.Acl": "Channel from the campaign list",
   "Ch.Empty": "Channels show up once games are picked for mining",
-
   "Channel.Online": "Live",
   "Channel.Pending": "Going live",
   "Channel.Offline": "Offline",
-
   "Log.Copy": "Copy",
   "Log.OpenFile": "Open file",
   "Log.Clear": "Clear",
-
   "Set.General": "GENERAL",
   "Set.Language": "Language",
   "Set.Theme": "Theme",
@@ -115,12 +101,12 @@
   "Set.Notifications": "Notify about claimed drops",
   "Set.Mining": "MINING",
   "Set.PriorityMode": "Which games to mine",
-  "Set.PriorityModeHint": "Games from the priority list always come first",
-  "Set.ModePriority": "Priority list only",
+  "Set.PriorityModeHint": "Queued games always come first",
+  "Set.ModePriority": "Queue only",
   "Set.ModeEnding": "Ending soonest first",
   "Set.ModeLowAvail": "Least time left first",
-  "Set.Priority": "Game priority",
-  "Set.PriorityHint": "The higher a game is in the list, the sooner the app works on its drops",
+  "Set.Priority": "Game queue",
+  "Set.PriorityHint": "Games are mined in order: while the top one still has drops, the next ones wait",
   "Set.Excluded": "Never mine",
   "Set.GameName": "Game name",
   "Set.Add": "Add",
@@ -142,9 +128,26 @@
   "Set.DataFolder": "Data folder",
   "Set.Portable": "Portable mode",
   "Set.Installed": "Data",
-
   "Toast.Claimed": "DROP CLAIMED",
   "Tray.Show": "Open",
   "Tray.Reload": "Refresh campaigns",
-  "Tray.Quit": "Quit"
+  "Tray.Quit": "Quit",
+  "Inv.Mining": "Mining",
+  "Inv.Queued": "Queued",
+  "Inv.AddQueue": "Add game to the queue",
+  "Inv.RemoveQueue": "Remove game from the queue",
+  "Inv.GroupQueue": "QUEUED · {0}",
+  "Inv.GroupOther": "OTHER · {0}",
+  "Queue.Title": "QUEUE",
+  "Queue.Add": "Add games",
+  "Queue.Up": "Move up",
+  "Queue.Down": "Move down",
+  "Queue.Remove": "Remove from queue",
+  "Queue.Mining": "Mining now",
+  "Queue.Waiting": "Waiting its turn",
+  "Queue.Upcoming": "Campaign hasn't started yet",
+  "Queue.NotLinked": "Account not linked",
+  "Queue.Done": "All claimed",
+  "Queue.NoCampaigns": "No active campaigns",
+  "Queue.DropsLeft": "drops left: {0}"
 }

@@ -21,7 +21,7 @@
 
 1. При первом запуске выберите язык.
 2. Войдите в Twitch: программа покажет код, откройте twitch.tv/activate и введите его.
-3. Во вкладке «Кампании» нажмите «+» у игр, дропы которых нужны, или добавьте их в «Настройки → Приоритет игр». Если хочется добывать всё подряд, переключите режим на «Сначала те, что скоро закончатся».
+3. Во вкладке «Кампании» нажмите «+» у игр, дропы которых нужны, или добавьте их в «Настройки → Очередь игр». На «Добыче» очередь видно целиком, там же её можно переставить или убрать игру. Если хочется добывать всё подряд, переключите режим на «Сначала те, что скоро закончатся».
 4. Если у кампании стоит «Не привязан», привяжите игровой аккаунт по ссылке на плашке, иначе Twitch награду не выдаст.
 
 Дальше программа работает сама: выбирает канал, переключается, когда стрим заканчивается, и забирает дропы. Крестик сворачивает её в трей.
@@ -65,7 +65,7 @@ Requires Windows 10 or 11 (64-bit).
 
 1. Pick a language on first launch.
 2. Sign in to Twitch: the app shows a code, open twitch.tv/activate and enter it.
-3. On the Campaigns tab press "+" next to the games you want drops for, or add them under Settings → Game priority. To mine everything, switch the mode to "Ending soonest first".
+3. On the Campaigns tab press "+" next to the games you want drops for, or add them under Settings → Game queue. The Mining tab shows the whole queue, where you can reorder it or drop a game. To mine everything, switch the mode to "Ending soonest first".
 4. If a campaign says "Not linked", link your game account using the link on that badge, otherwise Twitch won't hand out the reward.
 
 From there it runs on its own: picks a channel, switches when a stream ends and claims drops. The close button sends it to the tray.

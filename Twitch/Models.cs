@@ -267,6 +267,13 @@ public sealed partial class Campaign : ObservableObject
     public List<TimedDrop> Drops { get; }
 
     [ObservableProperty] private Bitmap? _image;
+    [ObservableProperty] private bool _inQueue;
+    [ObservableProperty] private bool _isMining;
+
+    public bool QueuedOnly => InQueue && !IsMining;
+
+    partial void OnInQueueChanged(bool value) => OnPropertyChanged(nameof(QueuedOnly));
+    partial void OnIsMiningChanged(bool value) => OnPropertyChanged(nameof(QueuedOnly));
 
     public Campaign(JsonNode c, IReadOnlyDictionary<string, DateTimeOffset> claimedBenefits, Settings settings)
     {

@@ -32,6 +32,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public Miner Miner { get; }
     public Settings Settings { get; }
+    public GameQueue Queue { get; }
     public DashboardViewModel Dashboard { get; }
     public InventoryViewModel Inventory { get; }
     public ChannelsViewModel Channels { get; }
@@ -47,8 +48,9 @@ public sealed partial class MainViewModel : ObservableObject
         Miner = miner;
         Settings = settings;
         _exit = exit;
-        Dashboard = new DashboardViewModel(this);
-        Inventory = new InventoryViewModel(miner, settings);
+        Queue = new GameQueue(settings, miner);
+        Dashboard = new DashboardViewModel(this, Queue);
+        Inventory = new InventoryViewModel(miner, Queue);
         Channels = new ChannelsViewModel(miner);
         SettingsPage = new SettingsViewModel(this, applyTheme);
         LogPage = new LogViewModel();
@@ -106,6 +108,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void GoSettings() => Navigate(SettingsPage);
+
+    [RelayCommand]
+    private void GoCampaigns() => Navigate(Inventory);
 
     [RelayCommand]
     private void Reload() => Miner.Reload();

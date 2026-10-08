@@ -4,9 +4,7 @@
   "Nav.Channels": "Каналы",
   "Nav.Log": "Журнал",
   "Nav.Settings": "Настройки",
-
   "Common.Reload": "Обновить",
-
   "Status.LoggingIn": "Вход в Twitch…",
   "Status.Idle": "Ожидание",
   "Status.FetchingInventory": "Загружаю инвентарь…",
@@ -21,11 +19,9 @@
   "Status.GoesOffline": "{0} закончил стрим, переключаюсь",
   "Status.ClaimedDrop": "Получен дроп: {0}",
   "Status.Error": "Ошибка, повтор через {0} с",
-
   "Error.SiteDown": "Twitch не отвечает, повтор через {0} с",
   "Error.ClaimIntegrity": "Twitch не даёт забирать дропы при входе через браузер. Выйдите в настройках и войдите по коду.",
   "Error.NoConnection": "Нет связи с {1}, повтор через {0} с",
-
   "Login.Title": "Вход в Twitch",
   "Login.Hint": "Программа смотрит стримы за вас и забирает дропы. Для этого нужен вход в аккаунт Twitch.",
   "Login.YourCode": "КОД АКТИВАЦИИ",
@@ -39,7 +35,6 @@
   "Login.NoBrowser": "Не нашёл Microsoft Edge или Google Chrome",
   "Login.Rejected": "Twitch не принял этот способ входа. Войдите заново, лучше через Edge.",
   "Login.DeviceUnavailable": "Twitch не выдал код активации. Попробуйте войти через Edge.",
-
   "Dash.Now": "СЕЙЧАС ДОБЫВАЕТСЯ",
   "Dash.UntilDrop": "до получения",
   "Dash.Minutes": "{0} из {1} мин",
@@ -52,22 +47,18 @@
   "Dash.CampaignDrops": "ДРОПЫ КАМПАНИИ",
   "Dash.AlmostDone": "почти готово",
   "Dash.EmptyIdle": "Сейчас нечего добывать",
-  "Dash.EmptyHint": "Добавьте игры, дропы которых вам нужны, в список приоритета. Программа сама найдёт каналы и начнёт смотреть.",
+  "Dash.EmptyHint": "Добавьте игры, дропы которых вам нужны, в очередь. Программа сама найдёт каналы и начнёт смотреть.",
   "Dash.SetupPriority": "Выбрать игры",
-
   "Time.HoursMinutes": "{0} ч {1} мин",
   "Time.Minutes": "{0} мин",
-
   "Drop.Claimed": "Получен",
   "Drop.ReadyToClaim": "Можно забрать",
   "Drop.Progress": "{0:P0} из {1} мин",
   "Drop.Minutes": "{0} мин",
-
   "Campaign.AllChannels": "любые",
   "Campaign.AndMore": "и ещё {0}",
   "Campaign.Ends": "до {0}",
   "Campaign.Starts": "начнётся {0}",
-
   "Inv.Active": "Активные",
   "Inv.Upcoming": "Скоро",
   "Inv.All": "Все",
@@ -80,10 +71,8 @@
   "Inv.Linked": "Привязан",
   "Inv.NotLinkedChip": "Не привязан",
   "Inv.LinkHint": "Открыть страницу привязки аккаунта",
-  "Inv.AddPriority": "Добавить игру в приоритет",
   "Inv.Channels": "Каналы:",
   "Inv.Empty": "Под эти фильтры кампаний нет",
-
   "Ch.Channel": "КАНАЛ",
   "Ch.Game": "ИГРА",
   "Ch.Viewers": "ЗРИТЕЛИ",
@@ -93,15 +82,12 @@
   "Ch.DropsEnabled": "Дропы включены",
   "Ch.Acl": "Канал из списка кампании",
   "Ch.Empty": "Каналы появятся, когда будут выбраны игры для добычи",
-
   "Channel.Online": "В эфире",
   "Channel.Pending": "Скоро в эфире",
   "Channel.Offline": "Не в эфире",
-
   "Log.Copy": "Копировать",
   "Log.OpenFile": "Открыть файл",
   "Log.Clear": "Очистить",
-
   "Set.General": "ОСНОВНОЕ",
   "Set.Language": "Язык",
   "Set.Theme": "Тема",
@@ -115,12 +101,12 @@
   "Set.Notifications": "Уведомлять о полученных дропах",
   "Set.Mining": "ДОБЫЧА",
   "Set.PriorityMode": "Какие игры добывать",
-  "Set.PriorityModeHint": "Игры из списка приоритета идут первыми в любом режиме",
-  "Set.ModePriority": "Только из списка",
+  "Set.PriorityModeHint": "Игры из очереди идут первыми в любом режиме",
+  "Set.ModePriority": "Только из очереди",
   "Set.ModeEnding": "Сначала те, что скоро закончатся",
   "Set.ModeLowAvail": "Сначала с малым запасом времени",
-  "Set.Priority": "Приоритет игр",
-  "Set.PriorityHint": "Чем выше игра в списке, тем раньше программа возьмётся за её дропы",
+  "Set.Priority": "Очередь игр",
+  "Set.PriorityHint": "Игры добываются по порядку: пока у верхней есть что получать, до следующих очередь не дойдёт",
   "Set.Excluded": "Никогда не добывать",
   "Set.GameName": "Название игры",
   "Set.Add": "Добавить",
@@ -142,9 +128,26 @@
   "Set.DataFolder": "Папка данных",
   "Set.Portable": "Портативный режим",
   "Set.Installed": "Данные",
-
   "Toast.Claimed": "ДРОП ПОЛУЧЕН",
   "Tray.Show": "Открыть",
   "Tray.Reload": "Обновить кампании",
-  "Tray.Quit": "Выйти"
+  "Tray.Quit": "Выйти",
+  "Inv.Mining": "Идёт",
+  "Inv.Queued": "В очереди",
+  "Inv.AddQueue": "Добавить игру в очередь",
+  "Inv.RemoveQueue": "Убрать игру из очереди",
+  "Inv.GroupQueue": "В ОЧЕРЕДИ · {0}",
+  "Inv.GroupOther": "ОСТАЛЬНЫЕ · {0}",
+  "Queue.Title": "ОЧЕРЕДЬ",
+  "Queue.Add": "Добавить игры",
+  "Queue.Up": "Выше",
+  "Queue.Down": "Ниже",
+  "Queue.Remove": "Убрать из очереди",
+  "Queue.Mining": "Добывается",
+  "Queue.Waiting": "Ждёт очереди",
+  "Queue.Upcoming": "Кампания ещё не началась",
+  "Queue.NotLinked": "Аккаунт не привязан",
+  "Queue.Done": "Всё получено",
+  "Queue.NoCampaigns": "Нет активных кампаний",
+  "Queue.DropsLeft": "осталось дропов: {0}"
 }
