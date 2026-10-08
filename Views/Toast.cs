@@ -59,6 +59,12 @@ public static class Toast
             ],
         };
 
+        // Высоту считаем заранее: окно сразу нужного размера и сразу над панелью задач,
+        // иначе позиция бралась от стандартной высоты и карточка уезжала вверх
+        const double width = 380;
+        card.Measure(new Size(width, double.PositiveInfinity));
+        var height = Math.Ceiling(card.DesiredSize.Height);
+
         var window = new Window
         {
             SystemDecorations = SystemDecorations.None,
@@ -66,25 +72,26 @@ public static class Toast
             ShowActivated = false,
             ShowInTaskbar = false,
             CanResize = false,
-            Width = 380,
-            SizeToContent = SizeToContent.Height,
+            Width = width,
+            Height = height,
+            WindowStartupLocation = WindowStartupLocation.Manual,
             Background = Brushes.Transparent,
             TransparencyLevelHint = [WindowTransparencyLevel.Transparent],
             Content = card,
         };
         card.PointerPressed += (_, _) => window.Close();
 
+        if (window.Screens.Primary is { } screen)
+        {
+            var area = screen.WorkingArea;
+            var scale = screen.Scaling;
+            window.Position = new PixelPoint(
+                area.Right - (int)Math.Ceiling(width * scale),
+                area.Bottom - (int)Math.Ceiling(height * scale));
+        }
+
         window.Opened += (_, _) =>
         {
-            var screen = window.Screens.Primary;
-            if (screen is not null)
-            {
-                var area = screen.WorkingArea;
-                var scale = screen.Scaling;
-                var w = (int)(window.Bounds.Width * scale);
-                var h = (int)(window.Bounds.Height * scale);
-                window.Position = new PixelPoint(area.Right - w - 8, area.Bottom - h - 8);
-            }
             card.Opacity = 1;
             card.RenderTransform = TransformOperations.Parse("translateY(0px)");
         };
