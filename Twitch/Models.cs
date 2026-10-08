@@ -310,7 +310,8 @@ public sealed partial class Campaign : ObservableObject
     public CampaignStatus Status => Active ? CampaignStatus.Active : Upcoming ? CampaignStatus.Upcoming : CampaignStatus.Expired;
 
     public bool HasBadgeOrEmote => _hasBadgeOrEmote ??= Drops.Any(d => d.Benefits.Any(b => b.IsBadgeOrEmote));
-    public bool Eligible => HasBadgeOrEmote ? _settings.EnableBadgesEmotes : Linked;
+    // Минуты копятся и без привязки аккаунта игры, привязать можно потом, до получения награды
+    public bool Eligible => !HasBadgeOrEmote || _settings.EnableBadgesEmotes;
     public bool Finished => Drops.All(d => d.IsClaimed || d.RequiredMinutes <= 0);
 
     public int TotalDrops => Drops.Count;
@@ -390,7 +391,6 @@ public sealed class StreamInfo
     public string Title { get; init; } = "";
     public Game? Game { get; init; }
     public bool DropsEnabled { get; set; }
-    public string? WatchPayload { get; set; }
 
     public static StreamInfo FromStreamInfo(JsonNode user, bool dropsEnabled) => new()
     {
@@ -423,7 +423,6 @@ public sealed partial class Channel : ObservableObject, IEquatable<Channel>
     [ObservableProperty] private bool _isWatching;
 
     private StreamInfo? _stream;
-    public string? SpadeUrl { get; set; }
     public CancellationTokenSource? PendingOnline { get; set; }
 
     public Channel(long id, string login, string? displayName, bool aclBased)

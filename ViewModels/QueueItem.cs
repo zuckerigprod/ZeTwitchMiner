@@ -52,13 +52,15 @@ public sealed class QueueItem
                 : QueueState.NoCampaigns;
 
             var remaining = eligible.Sum(c => c.RemainingDrops);
+            var unlinked = eligible.Any(c => !c.Linked);
             items.Add(new QueueItem
             {
                 Number = i + 1,
                 Name = name,
                 State = state,
                 Cover = (state == QueueState.Mining ? current : null) ?? eligible.FirstOrDefault() ?? campaigns.FirstOrDefault(),
-                Detail = state is QueueState.Mining or QueueState.Waiting && remaining > 0 ? Loc.F("Queue.DropsLeft", remaining) : "",
+                Detail = (state is QueueState.Mining or QueueState.Waiting && remaining > 0 ? Loc.F("Queue.DropsLeft", remaining) : "")
+                    + (unlinked && state is QueueState.Mining or QueueState.Waiting ? " · " + Loc.T("Queue.LinkLater") : ""),
                 IsFirst = i == 0,
                 IsLast = i == games.Count - 1,
             });

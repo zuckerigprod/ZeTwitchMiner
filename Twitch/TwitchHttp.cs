@@ -27,6 +27,10 @@ public sealed class TwitchHttp : IDisposable
 {
     public CookieContainer Cookies { get; } = new();
     public HttpClient Client { get; }
+
+    // Для страницы канала и событий просмотра: без cookie, иначе unique_id со страницы
+    // расходится с X-Device-Id, и Twitch не засчитывает минуты
+    public HttpClient Bare { get; }
     public TwitchConfig Config { get; }
     public TimeSpan TotalTimeout { get; }
     public IWebProxy? Proxy { get; }
@@ -57,6 +61,18 @@ public sealed class TwitchHttp : IDisposable
             UseProxy = Proxy is not null,
         };
         Client = new HttpClient(new UserAgentHandler(this) { InnerHandler = handler }) { Timeout = TotalTimeout };
+        Bare = new HttpClient(new UserAgentHandler(this)
+        {
+            InnerHandler = new SocketsHttpHandler
+            {
+                UseCookies = false,
+                AutomaticDecompression = DecompressionMethods.All,
+                ConnectTimeout = TimeSpan.FromSeconds(5 * quality),
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+                Proxy = Proxy,
+                UseProxy = Proxy is not null,
+            },
+        }) { Timeout = TotalTimeout };
     }
 
     public static IWebProxy? BuildProxy(string proxy)
@@ -72,8 +88,9 @@ public sealed class TwitchHttp : IDisposable
     }
 
     // Повторяет запрос, пока Twitch отвечает 5xx или нет сети. Любой ответ < 500 отдаётся вызывающему.
-    public async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> build, CancellationToken ct, DateTimeOffset? invalidateAfter = null)
+    public async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> build, CancellationToken ct, DateTimeOffset? invalidateAfter = null, bool bare = false)
     {
+        var client = bare ? Bare : Client;
         var backoff = new Backoff(180);
         while (true)
         {
@@ -85,7 +102,7 @@ public sealed class TwitchHttp : IDisposable
             using var request = build();
             try
             {
-                var response = await Client.SendAsync(request, HttpCompletionOption.ResponseContentRead, ct);
+                var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead, ct);
                 if ((int)response.StatusCode < 500) return response;
                 response.Dispose();
                 Notice?.Invoke(Loc.F("Error.SiteDown", (int)Math.Round(delay.TotalSeconds)));
@@ -103,7 +120,11 @@ public sealed class TwitchHttp : IDisposable
         }
     }
 
-    public void Dispose() => Client.Dispose();
+    public void Dispose()
+    {
+        Client.Dispose();
+        Bare.Dispose();
+    }
 
     private sealed class UserAgentHandler(TwitchHttp owner) : DelegatingHandler
     {

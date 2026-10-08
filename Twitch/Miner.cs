@@ -671,6 +671,7 @@ public sealed partial class Miner : ObservableObject
 
     private void StopWatching()
     {
+        StopHls();
         if (Watching is { } w) w.IsWatching = false;
         Watching = null;
         _watchingSet.Clear();
@@ -880,7 +881,7 @@ public sealed partial class Miner : ObservableObject
 
                 var sent = await SendWatchAsync(ch, ct);
                 var lastSent = Clock.Now;
-                if (!sent) Log.Info($"Watch request failed for channel {ch.Name}");
+                if (!sent) Log.Info($"Stream is stalled for channel {ch.Name}");
 
                 await Task.Delay(TimeSpan.FromSeconds(20), ct);
                 if (MinuteAlmostDone())
@@ -936,75 +937,114 @@ public sealed partial class Miner : ObservableObject
 
     public void Tick() => OnPropertyChanged(nameof(MinuteProgress));
 
-    [GeneratedRegex(@"src=""(https://[\w.]+/config/settings\.[0-9a-f]{32}\.js)""", RegexOptions.IgnoreCase)]
-    private static partial Regex SettingsPattern();
-
-    [GeneratedRegex(@"""(?:spade_?url|beacon_?url)"": ?""(https://[.\w\-/]+)""", RegexOptions.IgnoreCase)]
-    private static partial Regex SpadePattern();
-
-    private async Task<string> GetSpadeUrlAsync(Channel ch, CancellationToken ct)
+    // Twitch засчитывает минуты только тем, кто реально тянет поток: события spade
+    // он принимает, но не считает. Поэтому держим поток канала в режиме "только звук"
+    // и непрерывно скачиваем сегменты в никуда (около 100 МБ в час).
+    private sealed class HlsSession(Channel channel)
     {
-        using var page = await _http.SendAsync(() => new HttpRequestMessage(HttpMethod.Get, ch.Url), ct);
-        var html = await page.Content.ReadAsStringAsync(ct);
-        if (SpadePattern().Match(html) is { Success: true } direct) return direct.Groups[1].Value;
-
-        var settings = SettingsPattern().Match(html);
-        if (!settings.Success) throw new MinerException("Error while spade_url extraction: step #1");
-        using var js = await _http.SendAsync(() => new HttpRequestMessage(HttpMethod.Get, settings.Groups[1].Value), ct);
-        var match = SpadePattern().Match(await js.Content.ReadAsStringAsync(ct));
-        if (!match.Success) throw new MinerException("Error while spade_url extraction: step #2");
-        return match.Groups[1].Value;
+        public Channel Channel { get; } = channel;
+        public CancellationTokenSource Cts { get; } = new();
+        public Task? Task { get; set; }
+        public DateTimeOffset LastSegment { get; set; } = Clock.Now;
     }
 
-    private async Task<bool> SendWatchAsync(Channel ch, CancellationToken ct)
+    private HlsSession? _hls;
+
+    private Task<bool> SendWatchAsync(Channel ch, CancellationToken ct)
     {
-        if (ch.Stream is not { } stream) return false;
-        try
+        if (ch.Stream is null) return Task.FromResult(false);
+        if (_hls is null || !ReferenceEquals(_hls.Channel, ch) || _hls.Task is { IsCompleted: true })
         {
-            ch.SpadeUrl ??= await GetSpadeUrlAsync(ch, ct);
-            stream.WatchPayload ??= BuildWatchPayload(ch, stream);
-            using var response = await _http.SendAsync(() => new HttpRequestMessage(HttpMethod.Post, ch.SpadeUrl)
+            StopHls();
+            var session = new HlsSession(ch);
+            var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, session.Cts.Token);
+            session.Task = HlsLoopAsync(session, linked.Token);
+            _hls = session;
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(Clock.Now - _hls.LastSegment < TimeSpan.FromSeconds(45));
+    }
+
+    private void StopHls()
+    {
+        _hls?.Cts.Cancel();
+        _hls = null;
+    }
+
+    private async Task HlsLoopAsync(HlsSession session, CancellationToken ct)
+    {
+        var backoff = new Backoff(60);
+        var ch = session.Channel;
+        while (!ct.IsCancellationRequested)
+        {
+            try
             {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string> { ["data"] = stream.WatchPayload }),
-            }, ct);
-            return (int)response.StatusCode == 204;
-        }
-        catch (Exception ex) when (ex is MinerException or HttpRequestException)
-        {
-            Log.Debug($"Watch failed for {ch.Name}: {ex.Message}");
-            ch.SpadeUrl = null;
-            return false;
+                var playlist = await GetAudioPlaylistAsync(ch, ct);
+                Log.Debug($"Stream opened: {ch.Name}");
+                var seen = new Queue<string>();
+                var known = new HashSet<string>();
+                var first = true;
+                var refreshAt = Clock.Now.AddMinutes(10);
+
+                while (!ct.IsCancellationRequested && Clock.Now < refreshAt)
+                {
+                    using var list = await _http.Bare.GetAsync(playlist, ct);
+                    if (!list.IsSuccessStatusCode) break;
+                    var segments = (await list.Content.ReadAsStringAsync(ct))
+                        .Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith("http", StringComparison.Ordinal)).ToList();
+
+                    // При первом заходе берём только хвост, как плеер с живой точки
+                    var fresh = segments.Where(known.Add).ToList();
+                    if (first) fresh = fresh.TakeLast(2).ToList();
+                    first = false;
+
+                    foreach (var url in fresh)
+                    {
+                        using var seg = await _http.Bare.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+                        if (!seg.IsSuccessStatusCode) continue;
+                        await using var body = await seg.Content.ReadAsStreamAsync(ct);
+                        await body.CopyToAsync(Stream.Null, ct);
+                        session.LastSegment = Clock.Now;
+                    }
+
+                    foreach (var url in fresh) seen.Enqueue(url);
+                    while (seen.Count > 60) known.Remove(seen.Dequeue());
+                    backoff.Reset();
+                    await Task.Delay(TimeSpan.FromSeconds(4), ct);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Stream for {ch.Name} failed: {ex.Message}");
+                try { await Task.Delay(backoff.Next(), ct); }
+                catch (OperationCanceledException) { return; }
+            }
         }
     }
 
-    private string BuildWatchPayload(Channel ch, StreamInfo stream)
+    private async Task<string> GetAudioPlaylistAsync(Channel ch, CancellationToken ct)
     {
-        using var ms = new MemoryStream();
-        using (var w = new Utf8JsonWriter(ms))
-        {
-            w.WriteStartArray();
-            w.WriteStartObject();
-            w.WriteString("event", "minute-watched");
-            w.WriteStartObject("properties");
-            w.WriteString("broadcast_id", stream.BroadcastId.ToString());
-            w.WriteString("channel_id", ch.Id.ToString());
-            w.WriteString("channel", ch.Login);
-            w.WriteString("client_time", Clock.Now.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'"));
-            w.WriteString("game", stream.Game?.Name ?? "");
-            w.WriteString("game_id", stream.Game?.Id.ToString() ?? "");
-            w.WriteBoolean("hidden", false);
-            w.WriteBoolean("is_live", true);
-            w.WriteBoolean("live", true);
-            w.WriteBoolean("logged_in", true);
-            w.WriteNumber("minutes_logged", 1);
-            w.WriteBoolean("muted", false);
-            // user_id обязательно числом, иначе Twitch молча не засчитывает минуту
-            w.WriteNumber("user_id", _auth.UserId);
-            w.WriteEndObject();
-            w.WriteEndObject();
-            w.WriteEndArray();
-        }
-        return Convert.ToBase64String(ms.ToArray());
+        var r = await _gql.RequestAsync(_gql.Op("PlaybackAccessToken", new JsonObject { ["login"] = ch.Login }), ct);
+        var token = r["data"]?["streamPlaybackAccessToken"];
+        var value = token.Str("value");
+        var signature = token.Str("signature");
+        if (value.Length == 0) throw new MinerException("No playback token for " + ch.Login);
+
+        var usher = $"https://usher.ttvnw.net/api/channel/hls/{Uri.EscapeDataString(ch.Login)}.m3u8"
+            + $"?sig={signature}&token={Uri.EscapeDataString(value)}&allow_source=true&allow_audio_only=true&p={Random.Shared.Next(1_000_000)}";
+        using var master = await _http.Bare.GetAsync(usher, ct);
+        if (!master.IsSuccessStatusCode) throw new MinerException($"Usher answered {(int)master.StatusCode} for {ch.Login}");
+
+        var lines = (await master.Content.ReadAsStringAsync(ct)).Split('\n').Select(l => l.Trim()).ToList();
+        var audio = lines.FindIndex(l => l.Contains("VIDEO=\"audio_only\"", StringComparison.Ordinal));
+        if (audio >= 0 && audio + 1 < lines.Count) return lines[audio + 1];
+        // Если звуковой дорожки нет, берём самое низкое качество (последний вариант)
+        return lines.LastOrDefault(l => l.StartsWith("http", StringComparison.Ordinal))
+            ?? throw new MinerException("Empty playlist for " + ch.Login);
     }
 
     // ---------------- Получение наград ----------------

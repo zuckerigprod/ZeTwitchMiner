@@ -223,6 +223,17 @@
               </Button>
             </WrapPanel>
             <TextBlock Classes="muted small mono" Text="{Binding DataDirText}" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+              <Button Command="{Binding Main.CheckUpdatesCommand}" IsEnabled="{Binding !Main.Updater.IsBusy}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <LucideIcon Kind="RefreshCw" Size="15" />
+                  <TextBlock Text="{l:Tr Update.Check}" />
+                </StackPanel>
+              </Button>
+              <Button Classes="primary" Command="{Binding Main.UpdateNowCommand}" IsVisible="{Binding Main.Updater.Available, Converter={x:Static ObjectConverters.IsNotNull}}"
+                      IsEnabled="{Binding !Main.Updater.IsBusy}" Content="{Binding Main.Updater.VersionText}" />
+              <TextBlock Classes="muted small" VerticalAlignment="Center" Text="{Binding Main.Updater.Message}" />
+            </StackPanel>
           </StackPanel>
         </Grid>
       </Border>

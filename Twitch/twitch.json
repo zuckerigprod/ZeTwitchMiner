@@ -1,5 +1,5 @@
 {
-  "revision": 1,
+  "revision": 2,
   "loginClients": [
     "tv"
   ],
@@ -21,8 +21,9 @@
       "url": "https://android.tv.twitch.tv",
       "id": "ue6666qo983tsx6so1t0vnawi233wa",
       "userAgents": [
-        "Mozilla/5.0 (Linux; Android 7.1; Smart Box C1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36"
-      ]
+        "Mozilla/5.0 (Linux; Android 9; SHIELD Android TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0 Safari/537.36"
+      ],
+      "scopes": "channel_read chat:read user_blocks_edit user_blocks_read user_follows_edit user_read"
     },
     "web": {
       "url": "https://www.twitch.tv",
@@ -138,6 +139,18 @@
       "hash": "1f0300090caceec51f33c5e20647aceff9017f740f223c3c532ba6fa59f6b6cc",
       "variables": {
         "name": null
+      }
+    },
+    "PlaybackAccessToken": {
+      "name": "PlaybackAccessToken",
+      "hash": "ed230aa1e33e07eebb8928504583da78a5173989fadfb1ac94be06a04f3cdbe9",
+      "variables": {
+        "isLive": true,
+        "isVod": false,
+        "login": null,
+        "platform": "web",
+        "playerType": "site",
+        "vodID": ""
       }
     }
   },

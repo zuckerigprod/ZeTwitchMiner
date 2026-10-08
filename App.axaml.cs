@@ -82,6 +82,7 @@ public sealed class App(SingleInstance? instance, bool startHidden) : Applicatio
         tick.Start();
 
         _minerTask = miner.RunAsync(_appCts.Token);
+        _ = _vm.Updater.RunAsync(_appCts.Token);
     }
 
     private void ApplyTheme(ThemeMode mode) => RequestedThemeVariant = mode switch

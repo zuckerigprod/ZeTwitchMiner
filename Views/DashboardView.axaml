@@ -51,6 +51,26 @@
   <ScrollViewer>
     <StackPanel Margin="28,24,28,28" Spacing="18" MaxWidth="1120">
 
+      <!-- Новая версия -->
+      <Border Classes="card" Padding="18,14" BorderBrush="{DynamicResource Ore}" IsVisible="{Binding Main.Updater.ShowBanner}">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <Border Width="40" Height="40" CornerRadius="12" Background="{DynamicResource OreSoft}" VerticalAlignment="Center">
+            <LucideIcon Kind="Sparkles" Size="20" Foreground="{DynamicResource Ore}" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="14,0,12,0" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Classes="h3" Text="{Binding Main.Updater.VersionText}" />
+            <TextBlock Classes="muted small" Text="{Binding Main.Updater.Message}"
+                       IsVisible="{Binding Main.Updater.Message, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <ProgressBar Maximum="1" Value="{Binding Main.Updater.Progress}" IsVisible="{Binding Main.Updater.IsBusy}" Margin="0,4,0,0" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" IsEnabled="{Binding !Main.Updater.IsBusy}">
+            <Button Classes="primary" Command="{Binding Main.UpdateNowCommand}" Content="{l:Tr Update.Install}" />
+            <Button Classes="ghost" Command="{Binding Main.OpenReleaseCommand}" Content="{l:Tr Update.WhatsNew}" />
+            <Button Classes="ghost" Command="{Binding Main.UpdateLaterCommand}" Content="{l:Tr Update.Later}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
       <Border Classes="card" Padding="16,12" Background="{DynamicResource DangerSoft}" BorderBrush="{DynamicResource Danger}"
               IsVisible="{Binding Miner.LastError, Converter={x:Static ObjectConverters.IsNotNull}}">
         <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Miner.LastError}" />

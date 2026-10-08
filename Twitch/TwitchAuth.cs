@@ -142,6 +142,16 @@ public sealed class TwitchAuth(TwitchHttp http)
                 continue;
             }
 
+            // Без нужных прав Twitch принимает события просмотра, но минуты не засчитывает
+            var granted = (json["scopes"] as JsonArray)?.Select(x => x?.GetValue<string>()).ToHashSet() ?? [];
+            var missing = profile.Scopes.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(x => !granted.Contains(x)).ToList();
+            if (missing.Count > 0)
+            {
+                Log.Warn($"Token lacks scopes ({string.Join(", ", missing)}), logging in again");
+                AccessToken = null;
+                continue;
+            }
+
             http.Profile = profile;
             UserId = long.Parse(json.Str("user_id"));
             await EnsureDeviceIdAsync(ct);
@@ -255,7 +265,7 @@ public sealed class TwitchAuth(TwitchHttp http)
             using var response = await http.SendAsync(() => DeviceRequest(profile, "/device", new()
             {
                 ["client_id"] = profile.Id,
-                ["scopes"] = "",
+                ["scopes"] = profile.Scopes,
             }), ct);
             var body = await response.Content.ReadAsStringAsync(ct);
             if (response.IsSuccessStatusCode && JsonNode.Parse(body) is { } json && json["device_code"] is not null)
@@ -307,7 +317,7 @@ public sealed class TwitchAuth(TwitchHttp http)
         return req;
     }
 
-    public HttpRequestMessage WithHeaders(HttpRequestMessage req, bool gql = false)
+    public HttpRequestMessage WithHeaders(HttpRequestMessage req, bool gql = false, bool authorize = false)
     {
         var h = req.Headers;
         h.TryAddWithoutValidation("Accept", "*/*");
@@ -321,8 +331,8 @@ public sealed class TwitchAuth(TwitchHttp http)
         {
             h.TryAddWithoutValidation("Origin", Profile.Url);
             h.TryAddWithoutValidation("Referer", Profile.Url);
-            h.TryAddWithoutValidation("Authorization", "OAuth " + AccessToken);
         }
+        if (gql || authorize) h.TryAddWithoutValidation("Authorization", "OAuth " + AccessToken);
         return req;
     }
 

@@ -3,7 +3,7 @@ using ZeTwitchMiner.Core;
 
 namespace ZeTwitchMiner.Twitch;
 
-public sealed record ClientProfile(string Key, string Url, string Id, string UserAgent);
+public sealed record ClientProfile(string Key, string Url, string Id, string UserAgent, string Scopes);
 
 public sealed record GqlOperation(string Name, string Hash, JsonObject Variables);
 
@@ -80,7 +80,7 @@ public sealed class TwitchConfig
         {
             var agents = value!["userAgents"]!.AsArray().Select(a => a!.GetValue<string>()).ToArray();
             // Один UA на весь запуск, как у настоящего клиента
-            clients[key] = new ClientProfile(key, value.Str("url"), value.Str("id"), agents[Random.Shared.Next(agents.Length)]);
+            clients[key] = new ClientProfile(key, value.Str("url"), value.Str("id"), agents[Random.Shared.Next(agents.Length)], value.Str("scopes"));
         }
 
         var ops = new Dictionary<string, GqlOperation>();

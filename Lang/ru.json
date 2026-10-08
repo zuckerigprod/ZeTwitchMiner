@@ -149,5 +149,18 @@
   "Queue.NotLinked": "Аккаунт не привязан",
   "Queue.Done": "Всё получено",
   "Queue.NoCampaigns": "Нет активных кампаний",
-  "Queue.DropsLeft": "осталось дропов: {0}"
+  "Queue.DropsLeft": "осталось дропов: {0}",
+  "Update.Available": "Доступна версия {0}",
+  "Update.Install": "Обновить",
+  "Update.WhatsNew": "Что нового",
+  "Update.Later": "Позже",
+  "Update.Check": "Проверить обновления",
+  "Update.Checking": "Проверяю…",
+  "Update.UpToDate": "У вас последняя версия",
+  "Update.CheckFailed": "Не удалось проверить, нет связи с GitHub",
+  "Update.NoAsset": "В релизе нет файла для вашей версии, скачайте вручную",
+  "Update.Downloading": "Скачиваю…",
+  "Update.Installing": "Устанавливаю, программа перезапустится",
+  "Update.Failed": "Не удалось обновиться, подробности в журнале",
+  "Queue.LinkLater": "привяжите аккаунт до получения"
 }

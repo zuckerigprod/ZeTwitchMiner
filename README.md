@@ -26,6 +26,10 @@
 
 Дальше программа работает сама: выбирает канал, переключается, когда стрим заканчивается, и забирает дропы. Крестик сворачивает её в трей.
 
+Twitch засчитывает минуты только тем, кто реально получает поток, поэтому программа держит выбранный стрим в режиме «только звук» и ничего не сохраняет. Это около 100 МБ трафика в час.
+
+Обновления программа проверяет сама и предлагает поставить новую версию в один клик.
+
 Сессия шифруется средствами Windows и на другой компьютер не переносится.
 
 ### Если что-то сломалось
@@ -69,6 +73,10 @@ Requires Windows 10 or 11 (64-bit).
 4. If a campaign says "Not linked", link your game account using the link on that badge, otherwise Twitch won't hand out the reward.
 
 From there it runs on its own: picks a channel, switches when a stream ends and claims drops. The close button sends it to the tray.
+
+Twitch only credits minutes to viewers who actually receive the stream, so the app keeps the chosen stream open in audio-only mode and discards it. That's about 100 MB of traffic per hour.
+
+The app checks for updates on its own and offers to install a new version in one click.
 
 The session is encrypted with Windows DPAPI and doesn't carry over to another PC.
 

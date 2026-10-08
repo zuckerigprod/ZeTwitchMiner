@@ -121,6 +121,7 @@ public sealed class PubSubConnection(int index, TwitchHttp http, TwitchAuth auth
 
     private void SetStatus(WsStatus status)
     {
+        if (Status != status) Log.Debug($"Websocket #{Index}: {status}");
         Status = status;
         onStatus();
     }

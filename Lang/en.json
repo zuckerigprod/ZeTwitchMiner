@@ -149,5 +149,18 @@
   "Queue.NotLinked": "Account not linked",
   "Queue.Done": "All claimed",
   "Queue.NoCampaigns": "No active campaigns",
-  "Queue.DropsLeft": "drops left: {0}"
+  "Queue.DropsLeft": "drops left: {0}",
+  "Update.Available": "Version {0} is available",
+  "Update.Install": "Update",
+  "Update.WhatsNew": "What's new",
+  "Update.Later": "Later",
+  "Update.Check": "Check for updates",
+  "Update.Checking": "Checking…",
+  "Update.UpToDate": "You're on the latest version",
+  "Update.CheckFailed": "Couldn't check, GitHub is unreachable",
+  "Update.NoAsset": "The release has no file for your build, download it manually",
+  "Update.Downloading": "Downloading…",
+  "Update.Installing": "Installing, the app will restart",
+  "Update.Failed": "Update failed, see the log for details",
+  "Queue.LinkLater": "link your account before claiming"
 }

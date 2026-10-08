@@ -8,7 +8,7 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>ZeTwitchMiner</RootNamespace>
     <AssemblyName>ZeTwitchMiner</AssemblyName>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Authors>zuckerigprod</Authors>
     <Company>zuckerigprod</Company>
     <Product>ZeTwitchMiner</Product>

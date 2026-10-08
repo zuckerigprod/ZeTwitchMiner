@@ -80,7 +80,7 @@ public sealed partial class InventoryViewModel : ObservableObject
         var q = Search.Trim();
         var list = _miner.Inventory.Where(c =>
             c.RequiredMinutes > 0
-            && (ShowNotLinked || c.Eligible)
+            && (ShowNotLinked || c.Linked)
             && (ShowFinished || !c.Finished)
             && filter switch
             {

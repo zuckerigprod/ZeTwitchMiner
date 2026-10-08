@@ -33,6 +33,7 @@ public sealed partial class MainViewModel : ObservableObject
     public Miner Miner { get; }
     public Settings Settings { get; }
     public GameQueue Queue { get; }
+    public Updater Updater { get; }
     public DashboardViewModel Dashboard { get; }
     public InventoryViewModel Inventory { get; }
     public ChannelsViewModel Channels { get; }
@@ -49,6 +50,7 @@ public sealed partial class MainViewModel : ObservableObject
         Settings = settings;
         _exit = exit;
         Queue = new GameQueue(settings, miner);
+        Updater = new Updater(exit);
         Dashboard = new DashboardViewModel(this, Queue);
         Inventory = new InventoryViewModel(miner, Queue);
         Channels = new ChannelsViewModel(miner);
@@ -131,6 +133,18 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private Task Exit() => _exit();
+
+    [RelayCommand]
+    private Task UpdateNow() => Updater.InstallAsync();
+
+    [RelayCommand]
+    private void UpdateLater() => Updater.Dismissed = true;
+
+    [RelayCommand]
+    private Task CheckUpdates() => Updater.CheckAsync(manual: true);
+
+    [RelayCommand]
+    private void OpenRelease() => Updater.OpenReleasePage();
 
     public void SaveWindowSize(Window? window)
     {
