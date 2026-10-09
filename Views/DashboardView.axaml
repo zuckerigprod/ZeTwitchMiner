@@ -151,7 +151,7 @@
                             Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).QueueDownCommand}" CommandParameter="{Binding}">
                       <LucideIcon Kind="ChevronDown" Size="16" />
                     </Button>
-                    <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Queue.Remove}"
+                    <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Queue.Remove}" AutomationProperties.Name="{Binding RemoveLabel}"
                             Command="{Binding $parent[ItemsControl].((vm:DashboardViewModel)DataContext).QueueRemoveCommand}" CommandParameter="{Binding}">
                       <LucideIcon Kind="X" Size="16" />
                     </Button>

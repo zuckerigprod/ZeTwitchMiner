@@ -21,6 +21,7 @@ public sealed class QueueItem
     public bool IsDone => State is QueueState.Done;
     public bool CanMoveUp => !IsFirst;
     public bool CanMoveDown => !IsLast;
+    public string RemoveLabel => Loc.T("Queue.Remove") + ": " + Name;
 
     public string StatusText => State switch
     {

@@ -48,6 +48,7 @@ public sealed partial class Miner : ObservableObject
     private CancellationTokenSource? _maintenanceCts;
 
     public ImageCache Images { get; }
+    private readonly NotifiedDrops _notified = new();
     public ObservableCollection<Campaign> Inventory { get; } = [];
     public ObservableCollection<Channel> Channels { get; } = [];
     public IReadOnlyList<PubSubConnection> Connections => _pubsub?.Connections ?? [];
@@ -155,6 +156,11 @@ public sealed partial class Miner : ObservableObject
         while (true)
         {
             ct.ThrowIfCancellationRequested();
+            if (_reloadRequested && _state != MinerState.Exit && _state != MinerState.Restart)
+            {
+                _reloadRequested = false;
+                _state = MinerState.InventoryFetch;
+            }
             switch (_state)
             {
                 case MinerState.Idle:
@@ -197,13 +203,21 @@ public sealed partial class Miner : ObservableObject
         }
     }
 
+    private bool _reloadRequested;
+
     public void ChangeState(MinerState state)
     {
         if (_state != MinerState.Exit) _state = state;
         _stateChange.Set();
     }
 
-    public void Reload() => ChangeState(MinerState.InventoryFetch);
+    // Запрос извне (очередь, кнопка обновления) не должен потеряться: если майнер сейчас
+    // занят, его следующий шаг иначе перезапишет состояние, и убранная игра продолжит добываться
+    public void Reload()
+    {
+        _reloadRequested = true;
+        ChangeState(MinerState.InventoryFetch);
+    }
 
     public void Restart() => ChangeState(MinerState.Restart);
 
@@ -469,9 +483,11 @@ public sealed partial class Miner : ObservableObject
 
     private async Task GamesUpdateAsync(CancellationToken ct)
     {
+        // Первый проход после запуска забирает то, что накопилось, без уведомлений
         foreach (var c in _inventory.Where(c => !c.Upcoming))
             foreach (var d in c.Drops.Where(d => d.CanClaim).ToList())
-                await ClaimAsync(d, ct);
+                await ClaimAsync(d, ct, notify: _startupSweepDone);
+        _startupSweepDone = true;
 
         IEnumerable<Campaign> ordered = _settings.PriorityMode switch
         {
@@ -1049,26 +1065,39 @@ public sealed partial class Miner : ObservableObject
 
     // ---------------- Получение наград ----------------
 
-    private async Task ClaimAsync(TimedDrop drop, CancellationToken ct)
+    private enum ClaimResult { Claimed, AlreadyClaimed, Failed }
+
+    private bool _startupSweepDone;
+
+    private async Task ClaimAsync(TimedDrop drop, CancellationToken ct, bool notify = true)
     {
-        if (await TryClaimAsync(drop, ct))
-        {
-            drop.MarkClaimed();
-            var c = drop.Campaign;
-            var text = $"{c.Game}: {drop.RewardsText} ({c.ClaimedDrops}/{c.TotalDrops})";
-            Log.Info(Loc.F("Status.ClaimedDrop", text));
-            if (_settings.Notifications) DropClaimed?.Invoke(c.Game.Name, $"{drop.RewardsText} ({c.ClaimedDrops}/{c.TotalDrops})");
-        }
-        else
+        var instance = drop.ClaimId;
+        var result = await TryClaimAsync(drop, ct);
+        if (result == ClaimResult.Failed)
         {
             Log.Error($"Drop claim has potentially failed! Drop ID: {drop.Id}");
+            return;
         }
+
+        drop.MarkClaimed();
+        var c = drop.Campaign;
+        var text = $"{c.Game}: {drop.RewardsText} ({c.ClaimedDrops}/{c.TotalDrops})";
+
+        // "Уже получено" бывает при запуске, когда Twitch ещё числит старые дропы.
+        // Уведомляем только о новом получении и только один раз на дроп.
+        if (result == ClaimResult.AlreadyClaimed || !_notified.Add(instance ?? drop.Id) || !notify)
+        {
+            Log.Debug("Already claimed: " + text);
+            return;
+        }
+        Log.Info(Loc.F("Status.ClaimedDrop", text));
+        if (_settings.Notifications) DropClaimed?.Invoke(c.Game.Name, $"{drop.RewardsText} ({c.ClaimedDrops}/{c.TotalDrops})");
     }
 
-    private async Task<bool> TryClaimAsync(TimedDrop drop, CancellationToken ct)
+    private async Task<ClaimResult> TryClaimAsync(TimedDrop drop, CancellationToken ct)
     {
-        if (drop.IsClaimed) return true;
-        if (!drop.CanClaim) return false;
+        if (drop.IsClaimed) return ClaimResult.AlreadyClaimed;
+        if (!drop.CanClaim) return ClaimResult.Failed;
         try
         {
             var r = await _gql.RequestAsync(_gql.Op("ClaimDrop", new JsonObject
@@ -1076,14 +1105,19 @@ public sealed partial class Miner : ObservableObject
                 ["input"] = new JsonObject { ["dropInstanceID"] = drop.ClaimId },
             }), ct);
             var data = r["data"];
-            if (data?["errors"] is JsonArray { Count: > 0 }) return false;
-            return data?["claimDropRewards"].Str("status") is "ELIGIBLE_FOR_ALL" or "DROP_INSTANCE_ALREADY_CLAIMED";
+            if (data?["errors"] is JsonArray { Count: > 0 }) return ClaimResult.Failed;
+            return data?["claimDropRewards"].Str("status") switch
+            {
+                "ELIGIBLE_FOR_ALL" => ClaimResult.Claimed,
+                "DROP_INSTANCE_ALREADY_CLAIMED" => ClaimResult.AlreadyClaimed,
+                _ => ClaimResult.Failed,
+            };
         }
         catch (GqlException ex)
         {
             Log.Debug("Claim failed: " + ex.Message);
             if (ex.IsIntegrity) LastError = Loc.T("Error.ClaimIntegrity");
-            return false;
+            return ClaimResult.Failed;
         }
     }
 
