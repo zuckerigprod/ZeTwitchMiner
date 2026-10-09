@@ -20,6 +20,7 @@
     <DataTemplate DataType="vm:ChannelsViewModel"><v:ChannelsView /></DataTemplate>
     <DataTemplate DataType="vm:SettingsViewModel"><v:SettingsView /></DataTemplate>
     <DataTemplate DataType="vm:LogViewModel"><v:LogView /></DataTemplate>
+    <DataTemplate DataType="vm:PointsViewModel"><v:PointsView /></DataTemplate>
   </Window.DataTemplates>
 
   <Window.Styles>
@@ -60,7 +61,7 @@
                  HorizontalAlignment="Center" IsEnabled="{Binding Miner.LoggedIn}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:NavItem">
-              <Panel Background="Transparent" Width="46" Height="46"
+              <Panel Background="Transparent" Width="46" Height="46" AutomationProperties.Name="{Binding Title}"
                      ToolTip.Tip="{Binding Title}" ToolTip.Placement="Right" ToolTip.ShowDelay="300">
                 <LucideIcon Kind="{Binding Icon}" Size="21" StrokeWidth="1.8"
                             HorizontalAlignment="Center" VerticalAlignment="Center" />

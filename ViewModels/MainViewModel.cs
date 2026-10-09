@@ -39,6 +39,7 @@ public sealed partial class MainViewModel : ObservableObject
     public ChannelsViewModel Channels { get; }
     public SettingsViewModel SettingsPage { get; }
     public LogViewModel LogPage { get; }
+    public PointsViewModel PointsPage { get; }
     public List<NavItem> Nav { get; }
 
     [ObservableProperty] private NavItem _selectedNav;
@@ -56,12 +57,14 @@ public sealed partial class MainViewModel : ObservableObject
         Channels = new ChannelsViewModel(miner);
         SettingsPage = new SettingsViewModel(this, applyTheme);
         LogPage = new LogViewModel();
+        PointsPage = new PointsViewModel(miner);
 
         Nav =
         [
             new NavItem("Nav.Dashboard", LucideIconKind.Pickaxe, Dashboard),
             new NavItem("Nav.Campaigns", LucideIconKind.Gift, Inventory),
             new NavItem("Nav.Channels", LucideIconKind.Tv, Channels),
+            new NavItem("Nav.Points", LucideIconKind.Coins, PointsPage),
             new NavItem("Nav.Log", LucideIconKind.ScrollText, LogPage),
             new NavItem("Nav.Settings", LucideIconKind.Settings2, SettingsPage),
         ];
@@ -85,6 +88,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnSelectedNavChanged(NavItem value)
     {
         if (value.Page == Inventory) Inventory.Refresh();
+        if (value.Page == PointsPage) PointsPage.OnShown();
     }
 
     private void OnMinerChanged(object? sender, PropertyChangedEventArgs e)

@@ -7,6 +7,13 @@ public enum ThemeMode { System, Dark, Light }
 
 public enum PriorityMode { PriorityOnly, EndingSoonest, LowAvailFirst }
 
+public sealed class PointsEntry
+{
+    public string Login { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string Avatar { get; set; } = "";
+}
+
 public sealed class Settings
 {
     public string Language { get; set; } = "";
@@ -22,6 +29,9 @@ public sealed class Settings
     public bool Notifications { get; set; } = true;
     public string Proxy { get; set; } = "";
     public int ConnectionQuality { get; set; } = 1;
+    public bool PointsEnabled { get; set; }
+    public bool PointsUseModule { get; set; }
+    public List<PointsEntry> PointsChannels { get; set; } = [];
     public double WindowWidth { get; set; } = 1080;
     public double WindowHeight { get; set; } = 700;
 

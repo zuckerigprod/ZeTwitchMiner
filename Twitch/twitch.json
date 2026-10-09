@@ -1,5 +1,5 @@
 {
-  "revision": 2,
+  "revision": 3,
   "loginClients": [
     "tv"
   ],
@@ -151,6 +151,31 @@
         "platform": "web",
         "playerType": "site",
         "vodID": ""
+      }
+    },
+    "ChannelFollows": {
+      "name": "ChannelFollows",
+      "hash": "eecf815273d3d949e5cf0085cc5084cd8a1b5b7b6f7990cf43cb0beadf546907",
+      "variables": {
+        "limit": 100,
+        "order": "DESC"
+      }
+    },
+    "ChannelPointsContext": {
+      "name": "ChannelPointsContext",
+      "hash": "374314de591e69925fce3ddc2bcf085796f56ebb8cad67a0daa3165c03adc345",
+      "variables": {
+        "channelLogin": null
+      }
+    },
+    "ClaimCommunityPoints": {
+      "name": "ClaimCommunityPoints",
+      "hash": "46aaeebe02c99afdf4fc97c7c0cba964124bf6b0af229395f1f6d1feed05b3d0",
+      "variables": {
+        "input": {
+          "claimID": null,
+          "channelID": null
+        }
       }
     }
   },

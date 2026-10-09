@@ -75,6 +75,7 @@ public sealed partial class Miner : ObservableObject
     {
         _settings = settings;
         Images = new ImageCache(new HttpClient { Timeout = TimeSpan.FromSeconds(30) });
+        InitPoints();
     }
 
     public double MinuteProgress => _minuteStartedAt is { } t ? Math.Clamp((Clock.Now - t).TotalSeconds / 60, 0, 1) : 0;
@@ -149,6 +150,9 @@ public sealed partial class Miner : ObservableObject
 
         _pubsub.Start();
         _watchTask = WatchLoopAsync(ct);
+        // Баллы включаются не раньше, чем майнер разберётся с дропами
+        _noDropsSince = Clock.Now;
+        _ = PointsLoopAsync(ct);
         _pubsub.AddTopics([Topics.UserDrops(_auth.UserId), Topics.Notifications(_auth.UserId)]);
         _fullCleanup = false;
         ChangeState(MinerState.InventoryFetch);
@@ -238,9 +242,12 @@ public sealed partial class Miner : ObservableObject
         Restart();
     }
 
+    public void StopPointsBrowser() => _pointsBrowser.Stop();
+
     private async Task ShutdownAsync()
     {
         StopWatching();
+        _pointsBrowser.Stop();
         _maintenanceCts?.Cancel();
         _runCts?.Cancel();
         if (_watchTask is not null)
@@ -677,6 +684,7 @@ public sealed partial class Miner : ObservableObject
         ch.IsWatching = true;
         Watching = ch;
         _watchingSet.Set();
+        OnDropWatchingChanged(true);
         if (updateStatus)
         {
             Log.Info(Loc.F("Status.Watching", ch.Name));
@@ -688,6 +696,7 @@ public sealed partial class Miner : ObservableObject
     private void StopWatching()
     {
         StopHls();
+        if (Watching is not null) OnDropWatchingChanged(false);
         if (Watching is { } w) w.IsWatching = false;
         Watching = null;
         _watchingSet.Clear();

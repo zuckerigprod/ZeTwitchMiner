@@ -191,6 +191,7 @@ public sealed class App(SingleInstance? instance, bool startHidden) : Applicatio
         _vm?.SaveWindowSize(_window);
         _vm?.Settings.Save();
         _appCts.Cancel();
+        _vm?.Miner.StopPointsBrowser();
         if (_minerTask is not null)
             await Task.WhenAny(_minerTask, Task.Delay(3000));
         if (_tray is not null) _tray.IsVisible = false;

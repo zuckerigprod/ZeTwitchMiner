@@ -1,0 +1,180 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZeTwitchMiner.ViewModels"
+             xmlns:t="using:ZeTwitchMiner.Twitch"
+             xmlns:l="using:ZeTwitchMiner.Core"
+             x:Class="ZeTwitchMiner.Views.PointsView"
+             x:DataType="vm:PointsViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.avatar">
+      <Setter Property="CornerRadius" Value="99" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="Background" Value="{DynamicResource Raised}" />
+    </Style>
+    <Style Selector="Border.points-row">
+      <Setter Property="Background" Value="{DynamicResource Raised}" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="12,8,6,8" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.points-row.watching">
+      <Setter Property="BorderBrush" Value="{DynamicResource Mineral}" />
+    </Style>
+    <Style Selector="Ellipse.live">
+      <Setter Property="Fill" Value="{DynamicResource Track}" />
+    </Style>
+    <Style Selector="Ellipse.live.on">
+      <Setter Property="Fill" Value="{DynamicResource Mineral}" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer>
+    <StackPanel Margin="28,22,28,32" Spacing="18" MaxWidth="980">
+
+      <!-- Что это и как работает -->
+      <Border Classes="card" Padding="24">
+        <StackPanel Spacing="14">
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <Border Width="44" Height="44" CornerRadius="12" Background="{DynamicResource OreSoft}">
+              <LucideIcon Kind="Coins" Size="22" Foreground="{DynamicResource Ore}" />
+            </Border>
+            <TextBlock Classes="h2" Text="{l:Tr Points.Title}" VerticalAlignment="Center" />
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" Text="{l:Tr Points.Intro}" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{l:Tr Points.How}" />
+
+          <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasSystemBrowser}">
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{l:Tr Points.BrowserLabel}" FontWeight="Medium" />
+              <TextBlock Classes="muted small" Text="{l:Tr Points.BrowserLabelHint}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" MinWidth="260" VerticalAlignment="Center"
+                      ItemsSource="{Binding BrowserChoices}" SelectedIndex="{Binding BrowserChoiceIndex}" />
+          </Grid>
+
+          <Border Background="{DynamicResource Raised}" CornerRadius="12" Padding="14,12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <LucideIcon Kind="CircleCheck" Size="18" Foreground="{DynamicResource Mineral}" VerticalAlignment="Center"
+                          IsVisible="{Binding BrowserReady}" />
+              <LucideIcon Kind="Download" Size="18" Foreground="{DynamicResource Ore}" VerticalAlignment="Center"
+                          IsVisible="{Binding NeedsModule}" />
+              <StackPanel Grid.Column="1" Margin="12,0" Spacing="6" VerticalAlignment="Center">
+                <TextBlock TextWrapping="Wrap" Text="{Binding BrowserText}" />
+                <ProgressBar Maximum="1" Value="{Binding DownloadProgress}" IsVisible="{Binding IsDownloading}" />
+                <TextBlock Classes="muted small" Text="{Binding ModuleMessage}"
+                           IsVisible="{Binding ModuleMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              </StackPanel>
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button Classes="primary" Command="{Binding DownloadCommand}" IsVisible="{Binding NeedsModule}"
+                        IsEnabled="{Binding !IsDownloading}" Content="{l:Tr Points.Download}" />
+                <Button Classes="ghost" Command="{Binding RemoveModuleCommand}" IsVisible="{Binding CanRemoveModule}"
+                        Content="{l:Tr Points.RemoveModule}" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{l:Tr Points.Enable}" FontWeight="Medium" />
+              <TextBlock Classes="muted small" Text="{Binding Miner.PointsStatus}" TextWrapping="Wrap"
+                         IsVisible="{Binding Enabled}" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding Enabled}" IsEnabled="{Binding CanEnable}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- Мой список: порядок важен, поэтому с номерами -->
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <StackPanel Spacing="2">
+            <TextBlock Classes="eyebrow" Text="{l:Tr Points.MyList}" />
+            <TextBlock Classes="muted small" Text="{l:Tr Points.MyListHint}" TextWrapping="Wrap" />
+          </StackPanel>
+          <TextBlock Classes="muted" Text="{l:Tr Points.MyListEmpty}" IsVisible="{Binding !HasChannels}" Margin="0,6" />
+          <ItemsControl ItemsSource="{Binding Channels}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="t:PointsChannel">
+                <Border Classes="points-row" Classes.watching="{Binding IsWatching}">
+                  <Grid ColumnDefinitions="26,Auto,*,Auto,Auto">
+                    <TextBlock Classes="muted num" Text="{Binding Number}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Grid.Column="1" Classes="avatar" Width="36" Height="36">
+                      <Image Source="{Binding Avatar}" Stretch="UniformToFill" />
+                    </Border>
+                    <StackPanel Grid.Column="2" Margin="12,0" VerticalAlignment="Center" Spacing="2">
+                      <TextBlock Text="{Binding DisplayName}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="7" Height="7" Classes="live" Classes.on="{Binding IsLive}" VerticalAlignment="Center" />
+                        <TextBlock Classes="muted small" Text="{l:Tr Points.Live}" IsVisible="{Binding IsLive}" />
+                        <TextBlock Classes="muted small" Text="{l:Tr Points.Offline}" IsVisible="{Binding !IsLive}" />
+                        <Border Classes="chip mineral" IsVisible="{Binding IsWatching}" Padding="7,1">
+                          <TextBlock Text="{l:Tr Points.Watching}" />
+                        </Border>
+                      </StackPanel>
+                    </StackPanel>
+                    <TextBlock Grid.Column="3" Classes="num ore" Text="{Binding BalanceText}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Queue.Up}"
+                              Command="{Binding $parent[ItemsControl].((vm:PointsViewModel)DataContext).UpCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="ChevronUp" Size="16" />
+                      </Button>
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Queue.Down}"
+                              Command="{Binding $parent[ItemsControl].((vm:PointsViewModel)DataContext).DownCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="ChevronDown" Size="16" />
+                      </Button>
+                      <Button Classes="ghost" Padding="6" ToolTip.Tip="{l:Tr Points.RemoveTip}"
+                              Command="{Binding $parent[ItemsControl].((vm:PointsViewModel)DataContext).RemoveCommand}" CommandParameter="{Binding}">
+                        <LucideIcon Kind="X" Size="16" />
+                      </Button>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Подписки -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <Grid ColumnDefinitions="*,Auto,Auto">
+            <TextBlock Classes="eyebrow" Text="{l:Tr Points.Follows}" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Width="220" Watermark="{l:Tr Points.Search}" Text="{Binding Search}" Margin="0,0,6,0" />
+            <Button Grid.Column="2" Classes="ghost" Command="{Binding RefreshFollowsCommand}" ToolTip.Tip="{l:Tr Common.Reload}">
+              <LucideIcon Kind="RefreshCw" Size="16" />
+            </Button>
+          </Grid>
+          <TextBlock Classes="muted" Text="{l:Tr Points.Loading}" IsVisible="{Binding Miner.FollowsLoading}" />
+          <ItemsControl ItemsSource="{Binding FilteredFollows}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="t:FollowChannel">
+                <Border Background="{DynamicResource Raised}" CornerRadius="12" Padding="8,6,4,6" Margin="0,0,8,8" Width="226">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Classes="avatar" Width="30" Height="30">
+                      <Image Source="{Binding Avatar}" Stretch="UniformToFill" />
+                    </Border>
+                    <TextBlock Grid.Column="1" Margin="10,0,4,0" Text="{Binding DisplayName}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="2" Classes="ghost" Padding="6" IsVisible="{Binding !InList}" ToolTip.Tip="{l:Tr Points.AddTip}"
+                            Command="{Binding $parent[ItemsControl].((vm:PointsViewModel)DataContext).AddCommand}" CommandParameter="{Binding}">
+                      <LucideIcon Kind="Plus" Size="16" />
+                    </Button>
+                    <LucideIcon Grid.Column="2" Kind="Check" Size="16" Margin="6" Foreground="{DynamicResource Mineral}" IsVisible="{Binding InList}" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

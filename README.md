@@ -6,7 +6,9 @@
 
 Делал для себя. Майнеры дропов, которыми пользовался раньше, толком не работали: то не входили в аккаунт, то не видели кампании, то просто зависали. Пользоваться ими было неудобно, да и память они ели прилично. В какой-то момент надоело с этим возиться, и я написал свой на C# и Avalonia.
 
-Программа сама находит стримы с дропами, смотрит их за вас и забирает награды. Видео не качается, Twitch получает только события просмотра. Свёрнутая в трей, она занимает около 30 МБ.
+Программа сама находит стримы с дропами, смотрит их за вас и забирает награды. Когда дропов нет, может копить баллы на каналах ваших любимых стримеров. Свёрнутая в трей, она занимает около 30 МБ.
+
+![Кампании](docs/screenshots/ru/campaigns.png)
 
 ### Установка
 
@@ -28,7 +30,19 @@
 
 Twitch засчитывает минуты только тем, кто реально получает поток, поэтому программа держит выбранный стрим в режиме «только звук» и ничего не сохраняет. Это около 100 МБ трафика в час.
 
+### Баллы каналов
+
+Во вкладке «Баллы» видны ваши подписки. Добавьте в список каналы, на которых хотите копить баллы, и расставьте их по порядку. Когда дропов нет, программа смотрит первый канал из списка, который сейчас в эфире, и сама забирает бонус, который появляется примерно раз в 15 минут. Как только появляются дропы, она возвращается к ним.
+
+Баллы Twitch начисляет только настоящему веб-плееру, поэтому для них программа запускает браузер без окна. Подойдёт Edge или Chrome, которые уже стоят на компьютере, а если их нет или не хочется их трогать, можно скачать отдельный браузер прямо из вкладки. Он занимает около 400 МБ памяти и работает, только пока идёт сбор баллов. По умолчанию всё это выключено.
+
+![Баллы](docs/screenshots/ru/points.png)
+
+### Остальное
+
 Обновления программа проверяет сама и предлагает поставить новую версию в один клик.
+
+![Настройки](docs/screenshots/ru/settings.png)
 
 Сессия шифруется средствами Windows и на другой компьютер не переносится.
 
@@ -54,7 +68,9 @@ pwsh ./build.ps1
 
 I made this for myself. The drop miners I used before never quite worked: they'd fail to sign in, miss campaigns or just hang. They were awkward to use and ate a fair amount of memory on top of that. At some point I got tired of fighting them and wrote my own in C# with Avalonia.
 
-The app finds streams with drops, watches them for you and claims the rewards. No video is downloaded; Twitch only receives watch events. Minimized to the tray it uses about 30 MB.
+The app finds streams with drops, watches them for you and claims the rewards. When there are no drops, it can collect channel points on your favorite streamers' channels. Minimized to the tray it uses about 30 MB.
+
+![Campaigns](docs/screenshots/en/campaigns.png)
 
 ### Install
 
@@ -76,7 +92,19 @@ From there it runs on its own: picks a channel, switches when a stream ends and 
 
 Twitch only credits minutes to viewers who actually receive the stream, so the app keeps the chosen stream open in audio-only mode and discards it. That's about 100 MB of traffic per hour.
 
+### Channel points
+
+The Points tab shows the channels you follow. Add the ones you want to collect points on and put them in order. When there are no drops, the app watches the first channel on the list that's live and claims the bonus that pops up about every 15 minutes. As soon as drops show up, it goes back to them.
+
+Twitch only gives points to a real web player, so the app starts a browser without a window for this. It can use the Edge or Chrome you already have, or, if you don't have them or would rather not have them touched, download a separate browser right from the tab. It takes about 400 MB of memory and only runs while points are being collected. All of this is off by default.
+
+![Points](docs/screenshots/en/points.png)
+
+### Other
+
 The app checks for updates on its own and offers to install a new version in one click.
+
+![Settings](docs/screenshots/en/settings.png)
 
 The session is encrypted with Windows DPAPI and doesn't carry over to another PC.
 
