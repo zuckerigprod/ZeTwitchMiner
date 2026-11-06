@@ -20,6 +20,8 @@ public sealed partial class Miner : ObservableObject
 {
     private const int MaxChannels = 199;
     private const int DirectoryLimit = 20;
+    // 10 страниц по 30 стримов: дальше новые кампании почти не попадаются
+    private const int DiscoveryPages = 10;
     private static readonly TimeSpan WatchInterval = TimeSpan.FromSeconds(59);
     private static readonly TimeSpan OnlineDelay = TimeSpan.FromSeconds(120);
 
@@ -301,26 +303,28 @@ public sealed partial class Miner : ObservableObject
             Log.Warn("Campaign list requires integrity check for this client");
         }
 
-        // Для некоторых клиентов дашборд пуст. Тогда берём каталог кампаний с канала twitch:
+        // Для TV-клиента дашборд почти пуст, поэтому берём каталог кампаний с канала twitch:
         // он приходит одним запросом и сразу со всеми дропами
         var complete = new HashSet<string>();
-        if (available.Count == 0)
+        foreach (var c in await FetchCatalogAsync(ct))
         {
-            foreach (var c in await FetchCatalogAsync(ct))
-            {
-                if (c.Str("status") is not ("ACTIVE" or "UPCOMING")) continue;
-                available[c.Str("id")] = c;
-                complete.Add(c.Str("id"));
-            }
-            Log.Info($"Campaign catalog: {complete.Count} campaigns");
+            if (c.Str("status") is not ("ACTIVE" or "UPCOMING") || available.ContainsKey(c.Str("id"))) continue;
+            available[c.Str("id")] = c;
+            complete.Add(c.Str("id"));
         }
-        if (available.Count == 0)
+        Log.Info($"Campaign catalog: {complete.Count} campaigns");
+
+        // В каталог попадают только кампании для любых каналов. Те, что идут лишь у отдельных
+        // стримеров (так бывает у War Thunder), ищем по стримам с включёнными дропами
+        var found = 0;
+        foreach (var c in await DiscoverCampaignsAsync(available.Keys.ToHashSet(), ct))
         {
-            Log.Warn($"Campaign list is empty for '{_auth.Profile.Key}' client, searching campaigns by priority games");
-            foreach (var id in await DiscoverCampaignsAsync(ct))
-                if (!available.ContainsKey(id) && !inventoryData.ContainsKey(id))
-                    available[id] = new JsonObject { ["id"] = id };
+            if (c.Str("status") is not ("ACTIVE" or "UPCOMING")) continue;
+            available[c.Str("id")] = c;
+            complete.Add(c.Str("id"));
+            found++;
         }
+        if (found > 0) Log.Info($"Found {found} campaigns limited to certain channels");
 
         Status = Loc.T("Status.FetchingCampaigns");
         var ids = available.Keys.Concat(inventoryData.Keys).Distinct().ToList();
@@ -422,10 +426,40 @@ public sealed partial class Miner : ObservableObject
         }
     }
 
-    // Запасной путь, когда дашборд пуст: ищем кампании через каналы с дропами по играм из приоритета
-    private async Task<List<string>> DiscoverCampaignsAsync(CancellationToken ct)
+    // Кампании, которых нет в каталоге: смотрим, что доступно на каналах с дропами.
+    // Сначала самые популярные стримы по всему Twitch, потом все стримы игр из очереди.
+    // Полные данные потом берём с одного канала на кампанию: детали TV-клиенту не отдают
+    private async Task<List<JsonObject>> DiscoverCampaignsAsync(IReadOnlySet<string> known, CancellationToken ct)
     {
-        var ids = new HashSet<string>();
+        var where = new Dictionary<string, string>();
+        void Note(string id, string login)
+        {
+            if (id.Length > 0 && login.Length > 0 && !known.Contains(id)) where.TryAdd(id, login);
+        }
+
+        try
+        {
+            string? cursor = null;
+            for (var page = 0; page < DiscoveryPages; page++)
+            {
+                var r = await _gql.RequestAsync(_gql.Raw("DropsStreams", new JsonObject { ["after"] = cursor }), ct);
+                var streams = r["data"]?["streams"];
+                foreach (var e in (streams?["edges"] as JsonArray) ?? [])
+                {
+                    cursor = e.Str("cursor");
+                    var broadcaster = e?["node"]?["broadcaster"];
+                    foreach (var c in (broadcaster?["channel"]?["viewerDropCampaigns"] as JsonArray) ?? [])
+                        // Без игры это значки стримера за подписку, а не дропы
+                        if (c?["game"] is JsonObject) Note(c.Str("id"), broadcaster.Str("login"));
+                }
+                if (streams?["pageInfo"]?["hasNextPage"]?.GetValue<bool>() != true || string.IsNullOrEmpty(cursor)) break;
+            }
+        }
+        catch (MinerException ex)
+        {
+            Log.Warn("Drops streams scan failed: " + ex.Message);
+        }
+
         foreach (var gameName in _settings.PriorityGames)
         {
             try
@@ -435,19 +469,36 @@ public sealed partial class Miner : ObservableObject
                 if (string.IsNullOrEmpty(slug)) continue;
 
                 var streams = await GetLiveStreamsAsync(slug, ct);
-                var ops = streams.Take(10)
+                var responses = await _gql.RequestBatchAsync(streams
                     .Select(ch => _gql.Op("AvailableDrops", new JsonObject { ["channelID"] = ch.Id.ToString() }))
-                    .ToList();
-                foreach (var r in await _gql.RequestBatchAsync(ops, ct))
-                    foreach (var c in (r["data"]?["channel"]?["viewerDropCampaigns"] as JsonArray) ?? [])
-                        ids.Add(c.Str("id"));
+                    .ToList(), ct);
+                for (var i = 0; i < responses.Count && i < streams.Count; i++)
+                    foreach (var c in (responses[i]["data"]?["channel"]?["viewerDropCampaigns"] as JsonArray) ?? [])
+                        Note(c.Str("id"), streams[i].Login);
             }
             catch (MinerException ex)
             {
                 Log.Warn($"Campaign discovery for {gameName} failed: {ex.Message}");
             }
         }
-        return ids.Where(i => i.Length > 0).ToList();
+
+        var result = new Dictionary<string, JsonObject>();
+        if (where.Count == 0) return [];
+        try
+        {
+            var logins = where.Values.Distinct().ToList();
+            var responses = await _gql.RequestBatchAsync(logins
+                .Select(l => _gql.Raw("ChannelCampaigns", new JsonObject { ["login"] = l }))
+                .ToList(), ct);
+            foreach (var r in responses)
+                foreach (var c in (r["data"]?["user"]?["channel"]?["viewerDropCampaigns"] as JsonArray) ?? [])
+                    if (c is JsonObject o && where.ContainsKey(o.Str("id"))) result.TryAdd(o.Str("id"), o);
+        }
+        catch (MinerException ex)
+        {
+            Log.Warn("Campaign details by channel failed: " + ex.Message);
+        }
+        return result.Values.ToList();
     }
 
     private void RestartMaintenance(CancellationToken ct)

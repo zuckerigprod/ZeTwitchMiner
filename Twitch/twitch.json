@@ -1,5 +1,5 @@
 {
-  "revision": 3,
+  "revision": 4,
   "loginClients": [
     "tv"
   ],
@@ -184,6 +184,18 @@
       "query": "query CampaignCatalog($login: String!) { user(login: $login) { channel { dropCampaigns { id name status startAt endAt accountLinkURL self { isAccountConnected } game { id displayName name slug boxArtURL } allow { isEnabled channels { id name displayName } } timeBasedDrops { id name startAt endAt requiredMinutesWatched preconditionDrops { id } benefitEdges { benefit { id name imageAssetURL distributionType } } } } } } }",
       "variables": {
         "login": "twitch"
+      }
+    },
+    "DropsStreams": {
+      "query": "query DropsStreams($after: Cursor) { streams(first: 30, after: $after, options: { systemFilters: [DROPS_ENABLED] }) { edges { cursor node { broadcaster { login channel { viewerDropCampaigns { id game { id } } } } } } pageInfo { hasNextPage } } }",
+      "variables": {
+        "after": null
+      }
+    },
+    "ChannelCampaigns": {
+      "query": "query ChannelCampaigns($login: String!) { user(login: $login) { channel { viewerDropCampaigns { id name status startAt endAt accountLinkURL self { isAccountConnected } game { id displayName name slug boxArtURL } allow { isEnabled channels { id name displayName } } timeBasedDrops { id name startAt endAt requiredMinutesWatched preconditionDrops { id } benefitEdges { benefit { id name imageAssetURL distributionType } } } } } } }",
+      "variables": {
+        "login": null
       }
     }
   }
